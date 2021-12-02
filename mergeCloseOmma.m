@@ -5,8 +5,8 @@ function [omma_cent] = mergeCloseOmma(omma_cent,kernal)
 %--------------------------------------------------------------------------
 
 % create binary image with centroids painted in
-omma_cent_disp = zeros(size(omma_cent,3));
-for j = 1:size(omma_cent,3)
+omma_cent_disp = zeros(length(omma_cent));
+for j = 1:length(omma_cent)
     for jj = 1:size(omma_cent{j},1)
         omma_cent_disp(omma_cent{j}(jj,2),omma_cent{j}(jj,1),j) = 1;
     end
@@ -18,7 +18,6 @@ disp('Merging close objects')
 se = strel('disk',kernal);
 clear omma_cent
 for j = 1:size(omma_cent_disp,3)
-    
     curr = omma_cent_disp(:,:,j);
     curr = imdilate(curr,se);
     curr2 = bwlabel(curr);

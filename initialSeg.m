@@ -4,7 +4,7 @@ function [omma_cent, omma_area] = initialSeg(ilastik_probabilities,threshold)
 %--------------------------------------------------------------------------
 % segment the ommatidia using a threshold
 %--------------------------------------------------------------------------
-
+disp('/n')
 disp('Thresholding ilastik probabilities to find ommatidia')
 
 % store thresholded probabilites

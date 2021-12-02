@@ -3,6 +3,9 @@
 % define ommatidial lattice topology, and quantify roughness phenotype
 % K-D-Gallagher https://github.com/K-D-Gallagher 2021
 
+% Rough Eye Direct edge recovery system
+% Rough-EyeDERS
+
 
 %%
 %--------------------------------------------------------------------------
@@ -48,10 +51,10 @@ end
 % Here, we will compute the centroids of the objects we detected via pixel
 % classification in Ilastik. We achieve this by thresholding the pixel
 % classification probabilities exported from Ilastik.
-[~,omma_area] = initialSeg(ilastik_probabilities,0.3);
+[omma_cent,omma_area] = initialSeg(ilastik_probabilities,0.3);
 
 % remove out objects with less area than given threshold
-[omma_cent] = sizeThreshOmma(omma_area,0.7);
+[omma_cent] = sizeThreshOmma(omma_cent,omma_area,0.7);
 
 % merge close ommatidia by dilating and then finding centroid again
 [omma_cent] = mergeCloseOmma(omma_cent,4);
@@ -82,109 +85,23 @@ adultOmmatidiaSeg
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-% set directory for data
-image_dir = dir('/Users/kevin/Documents/MATLAB/forSha/omma_cent_disp_handCorrect_first75/*tif');
-folder = image_dir.folder;
-
-% read in first image so that we can check the dimensionality
-test_image = imread(fullfile(folder,image_dir(1).name));
-x_resolution = size(test_image,1);  % size of x dimension
-y_resolution = size(test_image,2);  % size of y dimension
-num_files = length(image_dir);      % number of images
-
-% initalize matrix to store raw images - needs to be unit 8
-% raw_images = uint8(zeros(x_resolution,y_resolution,t_resolution));
-hand_correct_omma_cent_disp = uint8(zeros(x_resolution,y_resolution,num_files));
-
-       
-% loop through time
-for i = 1:num_files
-    
-    % read image
-    curr_im = imread(fullfile(folder,image_dir(i).name));
-    
-    % store results of watershed segmentation
-    hand_correct_omma_cent_disp(:,:,i) = curr_im;
-    
-end
-
-dilate_hand_correct_omma_cent_disp = zeros(size(hand_correct_omma_cent_disp));
-se = strel('disk',2);
-for t = 1:size(hand_correct_omma_cent_disp,3)
-    dilate_hand_correct_omma_cent_disp(:,:,t) = imdilate(hand_correct_omma_cent_disp(:,:,t),se);
-end
-
-%% find hand corrected centroids
-
-hand_correct_omma_cent = cell(length(omma_cent),1);
-
-for t = 1:length(omma_cent)
-    [x,y] = find(hand_correct_omma_cent_disp(:,:,t));
-    hand_correct_omma_cent{t} = [y, x];
-end
+filepath = '/Users/kevin/Documents/MATLAB/forSha/omma_cent_disp_handCorrect_first75/*tif';
+[omma_cent] = manualCorrectFromFile(filepath);
 
 
 %%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 %
 %
-% draw ROI for each image
+% OPTIONAL: draw ROI on each image and throw away centroids not in ROI
 %
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 
-ROI = zeros(size(hand_correct_omma_cent_disp));
-
-for t = 1:75
-    
-    % display image
-    imshow(raw_images(:,:,:,t))
-    hold on
-    for ii = 1:length(hand_correct_omma_cent{t})
-        plot(hand_correct_omma_cent{t}(ii,1),hand_correct_omma_cent{t}(ii,2),'om','Linewidth',2,'MarkerSize',3)
-    end
-    hold off
-    
-    % draw ROI and save coordinates
-    p = drawpolygon('LineWidth',7,'Color','cyan');
-    ROI_points{t} = p.Position;
-    
-    % create binary mask of ROI
-    bw = double(poly2mask(ROI_points{t}(:,1),ROI_points{t}(:,2),size(raw_images,1),size(raw_images,2)));
-    
-    % apply mask to centroid map
-    ROI(:,:,t) = hand_correct_omma_cent_disp(:,:,t) .* uint8(bw);
-    
-    % find new centroid positions
-    % compute centroid positions
-    [x,y] = find(ROI(:,:,t));
-    temp_centroid = [y, x];
-    ROI_centroids{t} = temp_centroid;
-    
-    % display new set of centroids within the ROI
-    % display image
-    imshow(raw_images(:,:,:,t))
-    hold on
-    for ii = 1:length(ROI_centroids{t})
-        plot(ROI_centroids{t}(ii,1),ROI_centroids{t}(ii,2),...
-            'om','Linewidth',2,'MarkerSize',3)
-    end
-    plot([ROI_points{t}(:,1);ROI_points{t}(1,1)], ...
-        [ROI_points{t}(:,2);ROI_points{t}(1,2)], ...
-        'LineWidth',7,'Color','cyan')
-    hold off
-    drawnow
-    
-%     % record reason for selecting ROI
-%     prompt = 'Why was this ROI generated?';
-%     ROI_rational{t} = inputdlg(prompt,'s');
-    
-    
-    
-end
+[omma_cent] = customROI(raw_images,omma_cent);
 
 
 %%

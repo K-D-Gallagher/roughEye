@@ -78,10 +78,24 @@ handles.raw_images = evalin('base','raw_images');
 handles.omma_cent = evalin('base','omma_cent');
 
 % read in ommatidia centroids image
-handles.omma_cent_disp = evalin('base','omma_cent_disp');
+handles.omma_cent_disp = zeros(size(handles.omma_cent,3));
+for j = 1:size(handles.omma_cent,3)
+    for jj = 1:size(handles.omma_cent{j},1)
+        handles.omma_cent_disp(handles.omma_cent{j}(jj,2),handles.omma_cent{j}(jj,1),j) = 1;
+    end
+end
 
 % read in ilastik pixel classification
-handles.pix_classified = evalin('base','segmented_ommatidia');
+handles.ilastik_probabilities = evalin('base','ilastik_probabilities');
+handles.pix_classified = zeros(size(handles.ilastik_probabilities));
+
+% loop through probability masks and threshold each one
+for i = 1:size(handles.ilastik_probabilities,3)
+    
+    % thresholding ilastik probability masks
+    handles.pix_classified(:,:,i) = im2bw(handles.ilastik_probabilities(:,:,i),0.3);
+    
+end
 
 % find maximum number of time points and store in handles.max
 handles.max = size(handles.raw_images,4);
