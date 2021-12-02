@@ -1,7 +1,7 @@
 
 % segment ommatidia from brightfield images of Drosophila adult eyes,
 % define ommatidial lattice topology, and quantify roughness phenotype
-% K. Gallagher 2021
+% K-D-Gallagher 2021
 
 
 %%
