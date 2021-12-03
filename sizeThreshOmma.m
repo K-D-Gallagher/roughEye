@@ -1,4 +1,4 @@
-function [new_omma_cent] = sizeThreshOmma(omma_cent,omma_area,thresh)
+function [new_omma_centroids] = sizeThreshOmma(omma_centroids,omma_area,thresh)
 
 %--------------------------------------------------------------------------
 % screen out small centroids
@@ -11,7 +11,7 @@ for i = 1:length(omma_area)
     for j = 1:length(omma_area{i})
         if omma_area{i}(j) > thresh
             count = count + 1;
-            new_omma_cent{i}(count,1:2) = omma_cent{i}(j,:);
+            new_omma_centroids{i}(count,1:2) = omma_centroids{i}(j,:);
         end
     end
 end

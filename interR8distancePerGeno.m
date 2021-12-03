@@ -1,5 +1,5 @@
 function [] = ...
-    interR8distancePerGeno(filepath,genotypes,edge_clean_ROIcentroids,delaunay_neighbors)
+    interR8distancePerGeno(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
 
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
@@ -19,7 +19,7 @@ function [] = ...
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-num_meas = length(edge_clean_ROIcentroids);
+num_meas = length(clean_omma_centroids);
 
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
@@ -31,19 +31,19 @@ num_meas = length(edge_clean_ROIcentroids);
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-boundary_cent = cell(length(edge_clean_ROIcentroids),1);
+boundary_cent = cell(length(clean_omma_centroids),1);
 
 interR8_distances = {};
 interR8_links = {};
 
 % loop through images
-for t = 1:length(edge_clean_ROIcentroids)
+for t = 1:length(clean_omma_centroids)
     
     t
     
     % redefine centroid list as two separate lists, one for x and one for y
-    x = edge_clean_ROIcentroids{t}(:,1);
-    y = edge_clean_ROIcentroids{t}(:,2);
+    x = clean_omma_centroids{t}(:,1);
+    y = clean_omma_centroids{t}(:,2);
     
     % define list of unique centroid-centroid pairs for this current image
     unique_links = nan(1,4);
@@ -54,7 +54,7 @@ for t = 1:length(edge_clean_ROIcentroids)
     dist_count = 0;
     
     % loop through ommatidia - the identity of ommatidia is defined by their
-    % position within 'edge_clean_ROIcentroids'
+    % position within 'clean_omma_centroids'
     for j = 1:size(x,1)
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

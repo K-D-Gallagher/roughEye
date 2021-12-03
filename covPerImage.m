@@ -1,5 +1,5 @@
 function [] = ...
-    covPerImage(filepath,genotypes,edge_clean_ROIcentroids,delaunay_neighbors)
+    covPerImage(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
 
 
 %--------------------------------------------------------------------------
@@ -31,28 +31,28 @@ function [] = ...
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-boundary_cent = cell(length(edge_clean_ROIcentroids),1);
+boundary_cent = cell(length(clean_omma_centroids),1);
 
 % initialize cell array for recording fano factor of omma
-dist_fano = cell(length(edge_clean_ROIcentroids),1);
-dist_fano_mean = zeros(length(edge_clean_ROIcentroids),1);
+dist_fano = cell(length(clean_omma_centroids),1);
+dist_fano_mean = zeros(length(clean_omma_centroids),1);
 
-for t = 1:length(edge_clean_ROIcentroids)
+for t = 1:length(clean_omma_centroids)
     
     t
     
     % boundary centroids for current time
-    boundary_cent{t} = unique(boundary(edge_clean_ROIcentroids{t},0.8));
+    boundary_cent{t} = unique(boundary(clean_omma_centroids{t},0.8));
     
     % redefine centroid list as two separate lists, one for x and one for y
-    x = edge_clean_ROIcentroids{t}(:,1);
-    y = edge_clean_ROIcentroids{t}(:,2);
+    x = clean_omma_centroids{t}(:,1);
+    y = clean_omma_centroids{t}(:,2);
     
     % initialize list for storing fano for omma in current eye
     temp_dist_fano = nan(length(x),1);
     
     % loop through ommatidia - the identity of ommatidia is defined by their
-    % position within 'edge_clean_ROIcentroids'
+    % position within 'clean_omma_centroids'
     for j = 1:size(x,1)
         
         % make sure its not a boundary point
@@ -131,7 +131,7 @@ for t = 1:length(edge_clean_ROIcentroids)
 %         for q = 1:length(curr_triangles)
 %             for qq = 1:3
 %                 currR8 = edge_clean_delaunay{t}(curr_triangles(q),qq);
-%                 currCent = edge_clean_ROIcentroids{t}(currR8,:);
+%                 currCent = clean_omma_centroids{t}(currR8,:);
 %                 plot(currCent(1),currCent(2),'r*','MarkerSize',12, 'LineWidth', 4)
 %             end
 %         end
@@ -158,7 +158,7 @@ for t = 1:length(edge_clean_ROIcentroids)
 %     imshow(raw_images(:,:,:,t))
 %     hold on
 %     triplot(edge_clean_triangulation{t},'LineWidth',2,'Color','cyan')
-%     patch('vertices', edge_clean_ROIcentroids{t},'Faces', edge_clean_delaunay{t}, ...
+%     patch('vertices', clean_omma_centroids{t},'Faces', edge_clean_delaunay{t}, ...
 %         'FaceColor','flat', 'FaceVertexCData', colors, 'CDataMapping', 'direct', ...
 %         'FaceAlpha', 1);
 %     hold off

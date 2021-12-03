@@ -1,9 +1,9 @@
-function [ROI_points] = customROI(raw_images,omma_cent)
+function [ROI_points] = customROI(raw_images,omma_centroids)
 
 for j = 1:size(raw_images,4)
     omma_cent_disp(:,:,j) = zeros(size(raw_images(:,:,:,j),1),size(raw_images(:,:,:,j),2));
-    for jj = 1:size(omma_cent{j})
-        omma_cent_disp(omma_cent{j}(jj,2),omma_cent{j}(jj,1),j) = 1;
+    for jj = 1:size(omma_centroids{j})
+        omma_cent_disp(omma_centroids{j}(jj,2),omma_centroids{j}(jj,1),j) = 1;
     end
 end
 
@@ -14,8 +14,8 @@ for t = 1:size(raw_images,4)
     % display image
     imshow(raw_images(:,:,:,t))
     hold on
-    for ii = 1:length(omma_cent{t})
-        plot(omma_cent{t}(ii,1),omma_cent{t}(ii,2),'om','Linewidth',2,'MarkerSize',3)
+    for ii = 1:length(omma_centroids{t})
+        plot(omma_centroids{t}(ii,1),omma_centroids{t}(ii,2),'om','Linewidth',2,'MarkerSize',3)
     end
     hold off
     

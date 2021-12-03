@@ -1,5 +1,5 @@
 function [] = ...
-    covPerGeno(filepath,genotypes,edge_clean_ROIcentroids,delaunay_neighbors)
+    covPerGeno(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
 
 
 %--------------------------------------------------------------------------
@@ -20,7 +20,7 @@ function [] = ...
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-num_meas = length(edge_clean_ROIcentroids);
+num_meas = length(clean_omma_centroids);
 
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
@@ -32,28 +32,28 @@ num_meas = length(edge_clean_ROIcentroids);
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-boundary_cent = cell(length(edge_clean_ROIcentroids),1);
+boundary_cent = cell(length(clean_omma_centroids),1);
 
 % initialize cell array for recording COV factor of omma
-dist_COV = cell(length(edge_clean_ROIcentroids),1);
-dist_COV_mean = zeros(length(edge_clean_ROIcentroids),1);
+dist_COV = cell(length(clean_omma_centroids),1);
+dist_COV_mean = zeros(length(clean_omma_centroids),1);
 
-for t = 1:length(edge_clean_ROIcentroids)
+for t = 1:length(clean_omma_centroids)
     
     t
     
     % boundary centroids for current time
-    boundary_cent{t} = unique(boundary(edge_clean_ROIcentroids{t},0.8));
+    boundary_cent{t} = unique(boundary(clean_omma_centroids{t},0.8));
     
     % redefine centroid list as two separate lists, one for x and one for y
-    x = edge_clean_ROIcentroids{t}(:,1);
-    y = edge_clean_ROIcentroids{t}(:,2);
+    x = clean_omma_centroids{t}(:,1);
+    y = clean_omma_centroids{t}(:,2);
     
     % initialize list for storing COV for omma in current eye
     temp_dist_COV = nan(length(x),1);
     
     % loop through ommatidia - the identity of ommatidia is defined by their
-    % position within 'edge_clean_ROIcentroids'
+    % position within 'clean_omma_centroids'
     for j = 1:size(x,1)
         
         % make sure its not a boundary point

@@ -51,16 +51,29 @@ end
 % Segment ommatidia
 %--------------------------------------------------------------------------
 
-% Here, we will compute the centroids of the objects we detected via pixel
+% Compute the centroids of the ommatidia we've detected via pixel
 % classification in Ilastik. We achieve this by thresholding the pixel
 % classification probabilities exported from Ilastik.
-[omma_cent,omma_area] = initialSeg(ilastik_probabilities,0.3);
+[omma_centroids,omma_area] = initialSeg(ilastik_probabilities,0.3);
 
-% remove out objects with less area than given threshold
-[omma_cent] = sizeThreshOmma(omma_cent,omma_area,0.7);
+% remove objects with less area than given threshold (second argument)
+[omma_centroids] = sizeThreshOmma(omma_centroids,omma_area,0.7);
 
-% merge close ommatidia by dilating and then finding centroid again
-[omma_cent] = mergeCloseOmma(omma_cent,4);
+% merge close ommatidia by dilating and then finding centroid again (second
+% argument dilation kernal width)
+[omma_centroids] = mergeCloseOmma(omma_centroids,4);
+
+
+
+%% 
+%--------------------------------------------------------------------------
+% OPTIONAL: READ IN OMMATIDIA CENTROIDS FROM FILE
+% This is an alternative to segmenting ommatidia from Ilastik pixel
+% classification
+%--------------------------------------------------------------------------
+
+filepath = '/Users/kevin/Documents/MATLAB/forSha/omma_cent_disp_handCorrect_first75/*tif';
+[omma_centroids] = loadCentroidsFromFile(filepath);
 
 
 
@@ -69,29 +82,19 @@ end
 % hand correct using GUI
 %--------------------------------------------------------------------------
 
-% Here, we load the GUI for hand-correcting segmentation 
+% Load the GUI for hand-correcting segmentation. The GUI will allow you to
+% export the 'omma_centroids' variable
 
 adultOmmatidiaSeg
 
 
 
-%% 
-%--------------------------------------------------------------------------
-% OPTIONAL: read in hand corrected centroids from file
-% ONLY DO THIS IF YOU 
-%--------------------------------------------------------------------------
-
-filepath = '/Users/kevin/Documents/MATLAB/forSha/omma_cent_disp_handCorrect_first75/*tif';
-[omma_cent] = manualCorrectFromFile(filepath);
-
-
-
 %%
 %--------------------------------------------------------------------------
-% OPTIONAL: draw ROI on each image and throw away centroids not in ROI
+% OPTIONAL: define ROI for each image and throw away centroids not in ROI
 %--------------------------------------------------------------------------
 
-[omma_cent] = customROI(raw_images,omma_cent);
+[omma_centroids] = customROI(raw_images,omma_centroids);
 
 
 
@@ -101,8 +104,8 @@ filepath = '/Users/kevin/Documents/MATLAB/forSha/omma_cent_disp_handCorrect_firs
 %--------------------------------------------------------------------------
 
 
-[edge_clean_triangulation,edge_clean_ROIcentroids,delaunay_neighbors] ... 
-    = triangulateAndFindNeighbors(omma_cent);
+[omma_triangles,clean_omma_centroids,delaunay_neighbors] ... 
+    = triangulateAndFindNeighbors(omma_centroids);
 
 
 
@@ -124,14 +127,14 @@ filepath = '/Users/kevin/Documents/MATLAB/forSha/omma_cent_disp_handCorrect_firs
 
 for t = 2
     
-    boundary_cent = unique(boundary(edge_clean_ROIcentroids{t},0.8));
+    boundary_cent = unique(boundary(clean_omma_centroids{t},0.8));
     
-    x = edge_clean_ROIcentroids{t}(:,1);
-    y = edge_clean_ROIcentroids{t}(:,2);
+    x = clean_omma_centroids{t}(:,1);
+    y = clean_omma_centroids{t}(:,2);
     
 %     imshow(raw_images(:,:,:,t))
 %     hold on
-%     triplot(edge_clean_triangulation{t},'LineWidth',2,'Color','cyan')
+%     triplot(omma_triangles{t},'LineWidth',2,'Color','cyan')
 %     for j = 1:length(boundary_cent)
 %         plot(x(boundary_cent(j)),y(boundary_cent(j)),'ro','MarkerSize',12, 'LineWidth', 4)
 %     end
@@ -142,7 +145,7 @@ for t = 2
             if not(ismember(j,boundary_cent))
                 imshow(raw_images(:,:,:,t))
                 hold on
-                triplot(edge_clean_triangulation{t},'LineWidth',2,'Color','cyan')
+                triplot(omma_triangles{t},'LineWidth',2,'Color','cyan')
                 plot(x(j),y(j),'r*','MarkerSize',12, 'LineWidth', 4)
                 plot(x(delaunay_neighbors{t}{j}),y(delaunay_neighbors{t}{j}),'r.', ...
                     'MarkerSize', 12)
@@ -161,7 +164,7 @@ end
 % define list of genotypes
 genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
 
-covPerGeno(filepath,genotypes,edge_clean_ROIcentroids,delaunay_neighbors)
+covPerGeno(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
 
 
 %%
@@ -170,7 +173,7 @@ covPerGeno(filepath,genotypes,edge_clean_ROIcentroids,delaunay_neighbors)
 % define list of genotypes
 genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
 
-covPerImage(filepath,genotypes,edge_clean_ROIcentroids,delaunay_neighbors)
+covPerImage(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
 
 
 
@@ -179,7 +182,7 @@ covPerImage(filepath,genotypes,edge_clean_ROIcentroids,delaunay_neighbors)
 % define list of genotypes
 genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
 
-interR8distancePerGeno(filepath,genotypes,edge_clean_ROIcentroids,delaunay_neighbors)
+interR8distancePerGeno(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
 
 
 
@@ -367,7 +370,7 @@ for t = 1:75
     subplot(1,2,2,'position',[0.26 0.1 0.95 0.821])
     imshow(raw_images(:,:,:,sorted_distance_COV(t,1)))
     hold on
-    triplot(edge_clean_triangulation{sorted_distance_COV(t,1)},'LineWidth',2,'Color','cyan')
+    triplot(omma_triangles{sorted_distance_COV(t,1)},'LineWidth',2,'Color','cyan')
     hold off
     annotation('textbox',[0.51 0.43 0.5 0.5],'string',namestr{t},...
    'linestyle','none','FontSize',30,'Color','r')

@@ -1,18 +1,18 @@
-function [edge_clean_triangulation,edge_clean_ROIcentroids,delaunay_neighbors] ... 
-    = triangulateAndFindNeighbors(ROI_centroids)
+function [omma_triangles,clean_omma_centroids,delaunay_neighbors] ... 
+    = triangulateAndFindNeighbors(omma_centroids)
 
-for t = 1:length(ROI_centroids)
+for t = 1:length(omma_centroids)
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % delaunay triangulation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % delaunay triangulation
-    T = delaunay(ROI_centroids{t}(:,1),ROI_centroids{t}(:,2));
-    TR = triangulation(T,ROI_centroids{t});
+    T = delaunay(omma_centroids{t}(:,1),omma_centroids{t}(:,2));
+    TR = triangulation(T,omma_centroids{t});
     
     % find boundary
-    boundary_cent = unique(boundary(ROI_centroids{t}));
+    boundary_cent = unique(boundary(omma_centroids{t}));
     boundary_cent = sort(boundary_cent,'descend');
     
     % find triangles that have vertices along the boundary and flip these 
@@ -43,16 +43,16 @@ for t = 1:length(ROI_centroids)
     end
     
     % remove boundary centroids from our list
-    newROIcentroids = zeros(size(ROI_centroids{t},1) - length(unique(boundary_cent)),2);
+    newROIcentroids = zeros(size(omma_centroids{t},1) - length(unique(boundary_cent)),2);
     count = 0;
     count2 = 0;
-    for j = 1:size(ROI_centroids{t},1)
+    for j = 1:size(omma_centroids{t},1)
         
         % if its not a boundary centroid, then record it in our
         % new matrix
         if not(ismember(j,boundary_cent))
             count = count + 1;
-            newROIcentroids(count,:) = ROI_centroids{t}(j,:);
+            newROIcentroids(count,:) = omma_centroids{t}(j,:);
         
          end
         
@@ -107,10 +107,10 @@ for t = 1:length(ROI_centroids)
     delaunay_neighbors{t} = neighboursOfInternal;
     
     original_delaunay{t} = T;
-    edge_clean_delaunay{t} = newT;                  % definition of traingles - refers to indices of centroids in edge_clean_ROIcentroids
+    edge_clean_delaunay{t} = newT;                  % definition of traingles - refers to indices of centroids in clean_omma_centroids
     original_triangulation{t} = TR;
-    edge_clean_triangulation{t} = newTR;            % contains both centroid coordinates and definition of traingle connectivity
-    edge_clean_ROIcentroids{t} = newROIcentroids;   % just a list of ommatidia centroids
+    omma_triangles{t} = newTR;            % contains both centroid coordinates and definition of traingle connectivity
+    clean_omma_centroids{t} = newROIcentroids;   % just a list of ommatidia centroids
     
     
     

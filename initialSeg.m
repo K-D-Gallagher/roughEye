@@ -1,4 +1,4 @@
-function [omma_cent, omma_area] = initialSeg(ilastik_probabilities,threshold)
+function [omma_centroids, omma_area] = initialSeg(ilastik_probabilities,threshold)
 
 
 %--------------------------------------------------------------------------
@@ -34,13 +34,13 @@ end
 
 % create cell array to hold centroid positions - each cell contains the
 % centroids for one of the images
-omma_cent = cell(size(labeled_ommatidia,3),1);
+omma_centroids = cell(size(labeled_ommatidia,3),1);
 
 % compute centroid positions and screen out small ones
-for i = 1:length(omma_cent)
+for i = 1:length(omma_centroids)
     temp_centroid = regionprops(labeled_ommatidia(:,:,i),'Centroid');
     temp_area = regionprops(labeled_ommatidia(:,:,i),'Area');
-    omma_cent{i} = round(cat(1,temp_centroid.Centroid));
+    omma_centroids{i} = round(cat(1,temp_centroid.Centroid));
     omma_area{i} = round(cat(1,temp_area.Area));
 end
 
