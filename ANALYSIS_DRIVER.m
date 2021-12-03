@@ -9,6 +9,15 @@
 % Eye structure from images containing lattice edges
 % Eye Sicle
 
+%%
+%--------------------------------------------------------------------------
+% record experiment metadata
+%--------------------------------------------------------------------------
+
+experimentID = 'test';
+genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+initializeExperiment(experimentID)
+
 
 %%
 %--------------------------------------------------------------------------
@@ -29,20 +38,16 @@ filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/cropped_
 
 %%
 %--------------------------------------------------------------------------
-% show ilastik classification probabilities on top of raw image
+% show ilastik classification probabilities on top of raw image with the
+% option to save video to file
 %--------------------------------------------------------------------------
 
 % This is an optional block of code that will display a fusion of the raw
 % images (green hue) with ilastik probabilities (purple huge)
 
-% loop through number of images
-for i = 1:size(raw_images,4)
-    
-    % show the ith image
-    imshowpair(raw_images(:,:,:,i),ilastik_probabilities(:,:,i))
-    pause(0.5)
-    
-end
+save = false;
+
+visualizeIlastikProbabilities(raw_images,ilastik_probabilities,save)
 
 
 
@@ -110,77 +115,42 @@ adultOmmatidiaSeg
 
 
 %%
+%--------------------------------------------------------------------------
+% visualize neighbors of each ommatidia at the specified time point
+% option to save image to file
+%--------------------------------------------------------------------------
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%
-% go thru omma and visualize neighbors, making sure to avoid boundaries
-%
-% more or less a demonstration of how to index thru ommatidia while
-% avoiding boundary ommatidia, which ensures that we will only be taking
-% measurements of ommatidia with a full set of neighbors
-%
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+time_point = 2;
+save = false;
 
-for t = 2
-    
-    boundary_cent = unique(boundary(clean_omma_centroids{t},0.8));
-    
-    x = clean_omma_centroids{t}(:,1);
-    y = clean_omma_centroids{t}(:,2);
-    
-%     imshow(raw_images(:,:,:,t))
-%     hold on
-%     triplot(omma_triangles{t},'LineWidth',2,'Color','cyan')
-%     for j = 1:length(boundary_cent)
-%         plot(x(boundary_cent(j)),y(boundary_cent(j)),'ro','MarkerSize',12, 'LineWidth', 4)
-%     end
-%     filename = ['/Users/kevin/Documents/MATLAB/forSha/visualizing_neighbors/T=' num2str(0,'%03i') '.png'];
-%     print(gcf,'-dpng',filename)
-    
-        for j = 1:size(x,1)
-            if not(ismember(j,boundary_cent))
-                imshow(raw_images(:,:,:,t))
-                hold on
-                triplot(omma_triangles{t},'LineWidth',2,'Color','cyan')
-                plot(x(j),y(j),'r*','MarkerSize',12, 'LineWidth', 4)
-                plot(x(delaunay_neighbors{t}{j}),y(delaunay_neighbors{t}{j}),'r.', ...
-                    'MarkerSize', 12)
-                hold off
-    %             set(gcf,'PaperPosition',[0 0 (size(raw_images(:,:,1,1),2)/50)*2 (size(raw_images(:,:,1,1),1)/50)])
-    %             pbaspect([1 1 1])
-                filename = ['/Users/kevin/Documents/MATLAB/forSha/visualizing_neighbors/T=' num2str(j,'%03i') '.png'];
-                print(gcf,'-dpng',filename)
-            end
-        end
-    
-end
+visualizeOmmaNeighbors(raw_images,clean_omma_centroids,...
+    omma_triangles,delaunay_neighbors,time_point,save)
+
+
     
 %%
-
-% define list of genotypes
-genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+%--------------------------------------------------------------------------
+% calculate Coefficient of Variation across all ommatidia of each genotype
+%--------------------------------------------------------------------------
 
 covPerGeno(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
 
 
 %%
-
-
-% define list of genotypes
-genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+%--------------------------------------------------------------------------
+% calculate Coefficient of Variation across ommatidia for each image and
+% then average multiple images according to genotype
+%--------------------------------------------------------------------------
 
 covPerImage(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
 
 
 
 %%
-
-% define list of genotypes
-genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+%--------------------------------------------------------------------------
+% analyze inter-R8-distance (not coefficient of variation) via raw
+% distributions and eCDFs
+%--------------------------------------------------------------------------
 
 interR8distancePerGeno(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
 
