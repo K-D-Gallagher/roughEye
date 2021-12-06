@@ -33,7 +33,7 @@
 filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/cropped_images_768/';
 % [baseFileName, folder] = uiputfile(defaultFileName, 'Specify a file');
 
-experimentID = '21.12.03_test'; % NO SPACES PLEASE
+experimentID = '21.12.03 test'; % NO UNDERSCORES (_) please
 genotype_code = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
 full_genotype = ...
     ["mir7" ...
@@ -61,16 +61,23 @@ full_genotype = ...
 
 %%
 %--------------------------------------------------------------------------
-% show ilastik classification probabilities on top of raw image with the
-% option to save video to file
+% visualize ilastik classification overlaid on raw images
 %--------------------------------------------------------------------------
+% raw images = green hue
+% ilastik classification = purple huge
 
-% This is an optional block of code that will display a fusion of the raw
-% images (green hue) with ilastik probabilities (purple huge)
+% do you want to save each individual frame to file? (FOR ALL GENOTYPES)
+save_individual_images = true;
 
-save = false;
+% 
+genotype_movies = [];
 
-visualizeIlastikProbabilities(raw_images,ilastik_probabilities,save)
+genotype_display = [];
+
+visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
+    save_individual_images, ...
+    genotype_movies, ...
+    genotype_display)
 
 
 

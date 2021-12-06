@@ -25,23 +25,17 @@ set(gcf, 'renderer', 'zbuffer');
 %--------------------------------------------------------------------------
 % loop through number of images and record movie
 %--------------------------------------------------------------------------
-
-disp('\n')
-disp("Rendering frame:  ")
-
 for i = 1:numberOfFrames
-    
-    % display counter
-    if i > 1
-        for q=0:log10(i-1)
-          fprintf('\b'); % delete previous counter display
-        end
-        fprintf('%d',i)
-    end
-    
+    i
     % show overlaid probabilities and raw image and record
     imshowpair(imcomplement(raw_images(:,:,:,i)),uint8(ilastik_probabilities(:,:,i)) * 255)
+    
+%     caption = sprintf('Frame #%d of %d, t = %.1f', i, numberOfFrames, t(frameIndex));
+% 	title(caption, 'FontSize', 15);
+	drawnow;
 	thisFrame = getframe(gca);
+	% Write this frame out to a new video file.
+%  	writeVideo(writerObj, thisFrame);
 	myMovie(i) = thisFrame;
     
 end
@@ -55,16 +49,10 @@ close all
 %--------------------------------------------------------------------------
 if save_individual_images
     
-    disp('\n')
-    disp("Saving frame:  ")
-    
     % make folder
     base_path = expInfo.filepath_output;
     filepath_out = strcat(base_path,'/IlastikClassification/');
-    [ status, msg ] = mkdir(filepath_out);
-    if status == 0
-        msg
-    end
+    mkdir(filepath_out)
     
     % loop through and save each frame
     for j = 1:numberOfFrames
@@ -75,22 +63,13 @@ if save_individual_images
         new_frame(:,vidWidth+1:end,:) = myMovie(j).cdata;
         
         % write genotype ontop of image
-        text_str = expInfo.genotypes_full(j);
-        position = [15 15];
+        text_str = strcat('Genotype:', " ", expInfo.genotypes_full(j));
+        position = [vidWidth-round(length(text_str)*120) 15];
         new_frame = insertText(new_frame,position,text_str,'FontSize',30,...
             'BoxColor','white','TextColor','black');
         
-        % save to file
-        file_name = strcat(expInfo.filenames(j)," ",'ilastikClassification.jpeg');
-        imwrite(new_frame,fullfile(strcat(filepath_out,'/individualFrames/'),file_name));
-        
-        % display counter in command window
-        if j > 1
-            for q=0:log10(j-1)
-              fprintf('\b'); % delete previous counter display
-            end
-            fprintf('%d',j)
-        end
+        imshow(new_frame)
+        pause(0.5)
         
     end
     
@@ -99,6 +78,14 @@ end
 
 
 
+% %--------------------------------------------------------------------------
+% % See if they want to replay the movie.
+% %--------------------------------------------------------------------------
+% message = sprintf('Done recording movie\nDo you want to play it?');
+% button = questdlg(message, 'Continue?', 'Yes', 'No', 'No');
+% if strcmpi(button, 'Yes')
+%     implay(myMovie)
+% end
 
 
 %--------------------------------------------------------------------------

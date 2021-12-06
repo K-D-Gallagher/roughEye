@@ -1,17 +1,23 @@
 function [expInfo] = initializeExperiment(experimentID,genotype_code,full_genotype,filepath)
 
+% create new folder to save all plots, images, and database files within
 filepath_out = strcat(filepath,'/',experimentID,'/');
+[ status, msg ] = mkdir(filepath_out);
+if status == 0
+    msg
+end
 
-mkdir(filepath_out)
-
-% define Directory based only on .tif files
+% create Directory based only on .tif files
 Directory = dir(strcat(filepath,'*.tif'));
-
 num_meas = length(Directory);
+
+% initialize some data storage structures
 filename = cell(num_meas,1);
 genotype = cell(num_meas,1);
 sex = cell(num_meas,1);
 
+% string parsing based on filename to record the genotype and sex of each
+% image
 for t = 1:num_meas
     
     temp_namestr = Directory(t).name;
@@ -48,5 +54,6 @@ field5 = 'genotypes_code';  value5 = {genotype};
 field6 = 'genotypes_full';  value6 = {genotype_full};
 field7 = 'sex';             value7 = {sex};
 
+% return struct containing all the info we want
 expInfo = struct(field1,value1,field2,value2,field3,value3,...
     field4,value4,field5,value5,field6,value6,field7,value7);

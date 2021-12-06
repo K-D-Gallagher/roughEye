@@ -2,7 +2,15 @@ function [raw_images, ilastik_probabilities] = loadData(filepath)
 
 
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % read in raw images
+%
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
 % NOTE: this will read in all the files with the extension specificied
@@ -16,7 +24,9 @@ function [raw_images, ilastik_probabilities] = loadData(filepath)
 image_dir = dir(strcat(filepath,'*tif'));
 folder = image_dir.folder;
 
+%--------------------------------------------------------------------------
 % read in first image so that we can check the dimensionality
+%--------------------------------------------------------------------------
 test_image = imread(fullfile(folder,image_dir(1).name));
 x_resolution = size(test_image,1);  % size of x dimension
 y_resolution = size(test_image,2);  % size of y dimension
@@ -46,57 +56,75 @@ for i = 1:num_files
     
 end
 
-
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % read in ilastik h5 file containing prediction mask
+%
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
 % specify folder that contains h5 files
 Directory = dir(filepath);
 
+%--------------------------------------------------------------------------
 % delete '_' characters in filename because it messes up the order in which
 % things are loaded into matlab (making a mismatch between ilastik
 % probabilities and the corresponding raw images)
+%--------------------------------------------------------------------------
 for t = 3:length(Directory)
     fName = Directory(t).name;
     
     k = strfind(fName,'_');
     
     if k ~= 0
-        disp(fName)
         newName = fName;
         
         for j = 1:length(k)
             newName(k(j)) = ' ';
         end
         
+        % rename w/out '_' characters
         movefile( fullfile(Directory(1).folder, fName), fullfile(Directory(1).folder, newName) );
         
         fName = newName;
-        disp(fName)
     end
     
 end
 
+%--------------------------------------------------------------------------
+% load ilastik probability masks
+%--------------------------------------------------------------------------
+
 disp('\n')
 disp('Loading ilastik classification probabilities    ')
+
+h5count = 0;
 
 % loop through files
 Directory = dir(filepath);
 temp_prob = [];
 for t = 3:length(Directory)
     
-    if t > 3
-        for j=0:log10(t-1)
-          fprintf('\b'); % delete previous counter display
-        end
-        fprintf('%d',t)
-    end
-    
     fName = Directory(t).name;
     if ~isempty(strfind(fName,'.h5'))
-            pred = hdf5read([filepath,fName],'exported_data');
+        
+        pred = hdf5read([filepath,fName],'exported_data');
         temp_prob = cat(3,temp_prob,squeeze(pred(1,:,:,:)));
+        
+        % display count
+        h5count = h5count + 1;
+        if h5count > 3
+            for j=0:log10(h5count-1)
+              fprintf('\b'); % delete previous counter display
+            end
+            fprintf('%d',h5count)
+        end
+        
     end
 end
 
