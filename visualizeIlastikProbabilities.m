@@ -1,5 +1,5 @@
 function visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
-    save_individual_images, save_movies, display_now)
+    save_individual_images, save_movies)
 
 close all
 % make folder
@@ -113,13 +113,14 @@ end
 % loop through list of genotypes to save
 for m = 1:length(save_movies)
     
+    disp(strcat("Saving movie for ", save_movies(m), " genotype"))
+    
     %-------------
     % render movie
     %-------------
     
     % pull out indices matching current target genotype
     ind = find(expInfo.genotypes_code == save_movies(m));
-    length(ind)
     
     % make movie of this individual genotype
     temp_movie = uint8(zeros(vidHeight,vidWidth*2,3,length(ind)));
@@ -155,74 +156,12 @@ for m = 1:length(save_movies)
     % assemble full file name
     fullFileName = fullfile(filepath_out, baseFileName);
     
-	% Create a video writer object with that file name.
+	% record video
 	writerObj = VideoWriter(fullFileName,'MPEG-4');
 	open(writerObj);
     writeVideo(writerObj,temp_movie)
     close(writerObj);
     
-% 	% Write out all the frames
-% 	numberOfFrames = size(temp_movie,4);
-% 	for frameNumber = 1 : numberOfFrames 
-% 	   writeVideo(writerObj, temp_movie(frameNumber));
-% 	end
-    
 end
-
-
-
-%--------------------------------------------------------------------------
-% display movies for individual genotypes
-%--------------------------------------------------------------------------
-
-
-
-%--------------------------------------------------------------------------
-% See if they want to save the movie to an avi file on disk.
-%--------------------------------------------------------------------------
-promptMessage = sprintf('Do you want to save this movie to disk?');
-titleBarCaption = 'Continue?';
-button = questdlg(promptMessage, titleBarCaption, 'Yes', 'No', 'Yes');
-if strcmpi(button, 'yes')
-	% Get the name of the file that the user wants to save.
-	% Note, if you're saving an image you can use imsave() instead of uiputfile().
-	startingFolder = pwd;
-	defaultFileName = {'*.avi';'*.mp4';'*.mj2'}; %fullfile(startingFolder, '*.avi');
-	[baseFileName, folder] = uiputfile(defaultFileName, 'Specify a file');
-	if baseFileName == 0
-		% User clicked the Cancel button.
-		return;
-	end
-	fullFileName = fullfile(folder, baseFileName);
-	% Create a video writer object with that file name.
-	% The VideoWriter object must have a profile input argument, otherwise you get jpg.
-	% Determine the format the user specified:
-	[folder, baseFileName, ext] = fileparts(fullFileName);
-	switch lower(ext)
-		case '.jp2'
-			profile = 'Archival';
-		case '.mp4'
-			profile = 'MPEG-4';
-		otherwise
-			% Either avi or some other invalid extension.
-			profile = 'Uncompressed AVI';
-	end
-	writerObj = VideoWriter(fullFileName, profile);
-	open(writerObj);
-	% Write out all the frames.
-	numberOfFrames = length(myMovie);
-	for frameNumber = 1 : numberOfFrames 
-	   writeVideo(writerObj, myMovie(frameNumber));
-	end
-	close(writerObj);
-	% Display the current folder panel so they can see their newly created file.
-	cd(folder);
-	filebrowser;
-	message = sprintf('Finished creating movie file\n      %s.\n\nDone with demo!', fullFileName);
-	uiwait(helpdlg(message));
-else
-	uiwait(helpdlg('Done with demo!'));
-end
-
 
 
