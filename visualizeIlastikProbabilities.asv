@@ -1,7 +1,14 @@
 function visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
-    save_individual_images, genotype_movies, genotype_display)
+    save_individual_images, save_movies, display_now)
 
 close all
+% make folder
+base_path = expInfo.filepath_output;
+masterpath_out = strcat(base_path,'/IlastikClassification/');
+[ status, msg ] = mkdir(masterpath_out);
+if status == 0
+    msg
+end
 
 %--------------------------------------------------------------------------
 % Set up the movie structure.
@@ -22,20 +29,28 @@ myMovie = struct('cdata', allTheFrames, 'colormap', allTheColorMaps);
 % openGL doesn't work and Painters is way too slow.
 set(gcf, 'renderer', 'zbuffer');
 
+
+
 %--------------------------------------------------------------------------
 % loop through number of images and record movie
 %--------------------------------------------------------------------------
+
+disp('\n')
+disp("Rendering frame:  ")
+
 for i = 1:numberOfFrames
-    i
+    
+    % display counter
+    if i > 1
+        for q=0:log10(i-1)
+          fprintf('\b'); % delete previous counter display
+        end
+        fprintf('%d',i)
+    end
+    
     % show overlaid probabilities and raw image and record
     imshowpair(imcomplement(raw_images(:,:,:,i)),uint8(ilastik_probabilities(:,:,i)) * 255)
-    
-%     caption = sprintf('Frame #%d of %d, t = %.1f', i, numberOfFrames, t(frameIndex));
-% 	title(caption, 'FontSize', 15);
-	drawnow;
 	thisFrame = getframe(gca);
-	% Write this frame out to a new video file.
-%  	writeVideo(writerObj, thisFrame);
 	myMovie(i) = thisFrame;
     
 end
@@ -49,10 +64,15 @@ close all
 %--------------------------------------------------------------------------
 if save_individual_images
     
+    disp('\n')
+    disp("Saving frame:  ")
+    
     % make folder
-    base_path = expInfo.filepath_output;
-    filepath_out = strcat(base_path,'/IlastikClassification/');
-    mkdir(filepath_out)
+    filepath_out = strcat(masterpath_out,'/individualFrames/');
+    [ status, msg ] = mkdir(filepath_out);
+    if status == 0
+        msg
+    end
     
     % loop through and save each frame
     for j = 1:numberOfFrames
@@ -63,13 +83,22 @@ if save_individual_images
         new_frame(:,vidWidth+1:end,:) = myMovie(j).cdata;
         
         % write genotype ontop of image
-        text_str = strcat('Genotype:', " ", expInfo.genotypes_full(j));
-        position = [vidWidth-round(length(text_str)*120) 15];
+        text_str = strcat(expInfo.genotypes_full(j), " ", expInfo.sex(j));
+        position = [15 15];
         new_frame = insertText(new_frame,position,text_str,'FontSize',30,...
             'BoxColor','white','TextColor','black');
         
-        imshow(new_frame)
-        pause(0.5)
+        % save to file
+        file_name = strcat(expInfo.filenames(j)," ",'ilastikClassification.jpeg');
+        imwrite(new_frame,fullfile(filepath_out,file_name));
+        
+        % display counter in command window
+        if j > 1
+            for q=0:log10(j-1)
+              fprintf('\b'); % delete previous counter display
+            end
+            fprintf('%d',j)
+        end
         
     end
     
@@ -77,15 +106,72 @@ end
 
 
 
+%--------------------------------------------------------------------------
+% save movies for individual genotypes
+%--------------------------------------------------------------------------
 
-% %--------------------------------------------------------------------------
-% % See if they want to replay the movie.
-% %--------------------------------------------------------------------------
-% message = sprintf('Done recording movie\nDo you want to play it?');
-% button = questdlg(message, 'Continue?', 'Yes', 'No', 'No');
-% if strcmpi(button, 'Yes')
-%     implay(myMovie)
-% end
+% loop through list of genotypes to save
+for m = 1:length(save_movies)
+    
+    %-------------
+    % render movie
+    %-------------
+    
+    % pull out indices matching current target genotype
+    ind = find(expInfo.genotypes_code == save_movies(m));
+    
+    % make movie of this individual genotype
+    temp_movie = uint8(zeros(vidHeight,vidWidth*2,3,length(ind)));
+    for z = 1:length(ind)
+        
+        j = ind(z);
+        
+        % assemble side-by-side image of raw + raw w/ ilastik probabilities
+        new_frame = uint8(zeros(vidHeight,vidWidth*2,3));
+        new_frame(:,1:vidWidth,:) = raw_images(:,:,:,j);
+        new_frame(:,vidWidth+1:end,:) = myMovie(j).cdata;
+        
+        % write genotype ontop of image
+        text_str = strcat(expInfo.genotypes_full(j), " ", expInfo.sex(j));
+        position = [15 15];
+        new_frame = insertText(new_frame,position,text_str,'FontSize',30,...
+            'BoxColor','white','TextColor','black');
+        
+        % store current frame
+        temp_movie(:,:,:,j) = new_frame;
+    end
+    
+    %-----------
+    % save movie
+    %-----------
+    
+    % folder
+    filepath_out = strcat(expInfo.filepath_output,'/IlastikClassification/');
+    
+    % use genotype for movie name
+    baseFileName = save_movies(m);
+    
+    % 
+    fullFileName = fullfile(filepath_out, baseFileName);
+    
+	% Create a video writer object with that file name.
+	writerObj = VideoWriter(fullFileName,);
+	open(writerObj);
+    
+	% Write out all the frames.
+	numberOfFrames = size(temp_movie,4);
+	for frameNumber = 1 : numberOfFrames 
+	   writeVideo(writerObj, temp_movie(frameNumber));
+	end
+    
+end
+
+
+
+%--------------------------------------------------------------------------
+% display movies for individual genotypes
+%--------------------------------------------------------------------------
+
 
 
 %--------------------------------------------------------------------------

@@ -66,18 +66,20 @@ full_genotype = ...
 % raw images = green hue
 % ilastik classification = purple huge
 
-% do you want to save each individual frame to file? (FOR ALL GENOTYPES)
-save_individual_images = true;
 
-% 
-genotype_movies = [];
+% Do you want to save each individual frame to file? (FOR ALL GENOTYPES)
+save_individual_images = false;
 
-genotype_display = [];
+% Choose genotypes to save movies to file
+save_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+
+% Choose genotypes to display movie now
+display_now = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
 
 visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
     save_individual_images, ...
-    genotype_movies, ...
-    genotype_display)
+    save_movies, ...
+    display_now)
 
 
 

@@ -1,7 +1,14 @@
 function visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
-    save_individual_images, genotype_movies, genotype_display)
+    save_individual_images, save_movies, display_now)
 
 close all
+% make folder
+base_path = expInfo.filepath_output;
+masterpath_out = strcat(base_path,'/IlastikClassification/');
+[ status, msg ] = mkdir(masterpath_out);
+if status == 0
+    msg
+end
 
 %--------------------------------------------------------------------------
 % Set up the movie structure.
@@ -21,6 +28,8 @@ myMovie = struct('cdata', allTheFrames, 'colormap', allTheColorMaps);
 % Need to change from the default renderer to zbuffer to get it to work right.
 % openGL doesn't work and Painters is way too slow.
 set(gcf, 'renderer', 'zbuffer');
+
+
 
 %--------------------------------------------------------------------------
 % loop through number of images and record movie
@@ -59,8 +68,7 @@ if save_individual_images
     disp("Saving frame:  ")
     
     % make folder
-    base_path = expInfo.filepath_output;
-    filepath_out = strcat(base_path,'/IlastikClassification/');
+    filepath_out = strcat(masterpath_out,'/individualFrames/');
     [ status, msg ] = mkdir(filepath_out);
     if status == 0
         msg
@@ -75,14 +83,14 @@ if save_individual_images
         new_frame(:,vidWidth+1:end,:) = myMovie(j).cdata;
         
         % write genotype ontop of image
-        text_str = expInfo.genotypes_full(j);
+        text_str = strcat(expInfo.genotypes_full(j), " ", expInfo.sex(j));
         position = [15 15];
         new_frame = insertText(new_frame,position,text_str,'FontSize',30,...
             'BoxColor','white','TextColor','black');
         
         % save to file
         file_name = strcat(expInfo.filenames(j)," ",'ilastikClassification.jpeg');
-        imwrite(new_frame,fullfile(strcat(filepath_out,'/individualFrames/'),file_name));
+        imwrite(new_frame,fullfile(filepath_out,file_name));
         
         % display counter in command window
         if j > 1
@@ -98,6 +106,74 @@ end
 
 
 
+%--------------------------------------------------------------------------
+% save movies for individual genotypes
+%--------------------------------------------------------------------------
+
+% loop through list of genotypes to save
+for m = 1:length(save_movies)
+    
+    %-------------
+    % render movie
+    %-------------
+    
+    % pull out indices matching current target genotype
+    ind = find(expInfo.genotypes_code == save_movies(m));
+    length(ind)
+    
+    % make movie of this individual genotype
+    temp_movie = uint8(zeros(vidHeight,vidWidth*2,3,length(ind)));
+    for z = 1:length(ind)
+        
+        j = ind(z);
+        
+        % assemble side-by-side image of raw + raw w/ ilastik probabilities
+        new_frame = uint8(zeros(vidHeight,vidWidth*2,3));
+        new_frame(:,1:vidWidth,:) = raw_images(:,:,:,j);
+        new_frame(:,vidWidth+1:end,:) = myMovie(j).cdata;
+        
+        % write genotype ontop of image
+        text_str = strcat(expInfo.genotypes_full(j), " ", expInfo.sex(j));
+        position = [15 15];
+        new_frame = insertText(new_frame,position,text_str,'FontSize',30,...
+            'BoxColor','white','TextColor','black');
+        
+        % store current frame
+        temp_movie(:,:,:,z) = new_frame;
+    end
+    
+    %-----------
+    % save movie
+    %-----------
+    
+    % folder
+    filepath_out = strcat(expInfo.filepath_output,'/IlastikClassification/');
+    
+    % use genotype for movie name
+    baseFileName = save_movies(m);
+    
+    % assemble full file name
+    fullFileName = fullfile(filepath_out, baseFileName);
+    
+	% Create a video writer object with that file name.
+	writerObj = VideoWriter(fullFileName,'MPEG-4');
+	open(writerObj);
+    writeVideo(writerObj,temp_movie)
+    close(writerObj);
+    
+% 	% Write out all the frames
+% 	numberOfFrames = size(temp_movie,4);
+% 	for frameNumber = 1 : numberOfFrames 
+% 	   writeVideo(writerObj, temp_movie(frameNumber));
+% 	end
+    
+end
+
+
+
+%--------------------------------------------------------------------------
+% display movies for individual genotypes
+%--------------------------------------------------------------------------
 
 
 
