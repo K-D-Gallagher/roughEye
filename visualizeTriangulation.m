@@ -1,5 +1,5 @@
-function visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
-    save_individual_images, save_movies)
+function visualizeTriangulation(expInfo,raw_images,omma_triangles,...
+    save_individual_images,save_movies)
 
 %--------------------------------------------------------------------------
 % make directory
@@ -7,7 +7,7 @@ function visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities,
 close all
 % make folder
 base_path = expInfo.filepath_output;
-masterpath_out = strcat(base_path,'/IlastikClassification/');
+masterpath_out = strcat(base_path,'/latticeTriangulation/');
 [ status, msg ] = mkdir(masterpath_out);
 if status == 0
     msg
@@ -53,10 +53,14 @@ for i = 1:numberOfFrames
         fprintf('%d',i)
     end
     
-    %-----------------------------------------------------
-    % show overlaid probabilities and raw image and record
-    %-----------------------------------------------------
-    imshowpair(imcomplement(raw_images(:,:,:,i)),uint8(ilastik_probabilities(:,:,i)) * 255)
+    %-----------------------------------------
+    % visualize triangles on top of raw images
+    %-----------------------------------------
+    imshow(raw_images(:,:,:,i))
+    hold on
+    triplot(omma_triangles{i},'LineWidth',2,'Color','cyan')
+    hold off
+    
 	thisFrame = getframe(gca);
 	myMovie(i) = thisFrame;
     
@@ -89,9 +93,7 @@ if save_individual_images
         %-------------------------------
         
         % assemble side-by-side image of raw + raw w/ ilastik probabilities
-        new_frame = uint8(zeros(vidHeight,vidWidth*2,3));
-        new_frame(:,1:vidWidth,:) = raw_images(:,:,:,j);
-        new_frame(:,vidWidth+1:end,:) = myMovie(j).cdata;
+        new_frame = myMovie(j).cdata;
         
         % write genotype ontop of image
         text_str = strcat(expInfo.genotypes_full(j), " ", expInfo.sex(j));
@@ -102,7 +104,7 @@ if save_individual_images
         %-------------
         % save to file
         %-------------
-        file_name = strcat(expInfo.filenames(j)," ",'ilastikClassification.jpeg');
+        file_name = strcat(expInfo.filenames(j)," ",'latticeTriangulation.jpeg');
         imwrite(new_frame,fullfile(filepath_out,file_name));
         
         %----------------------------------
@@ -138,7 +140,9 @@ for m = 1:length(save_movies)
     ind = find(expInfo.genotypes_code == save_movies(m));
     
     % make movie of this individual genotype
-    temp_movie = uint8(zeros(vidHeight,vidWidth*2,3,length(ind)));
+    temp_movie = uint8(zeros(vidHeight,vidWidth,3,length(ind)));
+    
+    % loop through indices that contain target genotype
     for z = 1:length(ind)
         
         j = ind(z);
@@ -148,9 +152,7 @@ for m = 1:length(save_movies)
         %-------------------------------
         
         % assemble side-by-side image of raw + raw w/ ilastik probabilities
-        new_frame = uint8(zeros(vidHeight,vidWidth*2,3));
-        new_frame(:,1:vidWidth,:) = raw_images(:,:,:,j);
-        new_frame(:,vidWidth+1:end,:) = myMovie(j).cdata;
+        new_frame = myMovie(j).cdata;
         
         % write genotype ontop of image
         text_str = strcat(expInfo.genotypes_full(j), " ", expInfo.sex(j));
@@ -162,21 +164,17 @@ for m = 1:length(save_movies)
         % store current frame
         %--------------------
         temp_movie(:,:,:,z) = new_frame;
-        
     end
     
     %-----------
     % save movie
     %-----------
     
-    % folder
-    filepath_out = strcat(expInfo.filepath_output,'/IlastikClassification/');
-    
     % use genotype for movie name
     baseFileName = save_movies(m);
     
     % assemble full file name
-    fullFileName = fullfile(filepath_out, baseFileName);
+    fullFileName = fullfile(masterpath_out, baseFileName);
     
 	% record video
 	writerObj = VideoWriter(fullFileName,'MPEG-4');
@@ -186,5 +184,3 @@ for m = 1:length(save_movies)
     close(writerObj);
     
 end
-
-

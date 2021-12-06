@@ -73,6 +73,9 @@ save_individual_images = true;
 % Choose genotypes to save movies to file
 save_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
 
+% If you don't want to save any videos, leave string array blank:
+% save_movies = [];
+
 visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
     save_individual_images, save_movies)
 
@@ -133,9 +136,42 @@ adultOmmatidiaSeg
 
 %%
 %--------------------------------------------------------------------------
-% triangulate points and find neighbors
+% visualize segmented ommatidia
 %--------------------------------------------------------------------------
 
+
+%--------------------------------------------------------------------------
+% Parameters for displaying segmented ommatidia centroids
+
+% For additional options, see linespec:
+% https://www.mathworks.com/help/matlab/creating_plots/specify-line-and-marker-appearance-in-plots.html
+
+marker_type = 'o';         % alt options: o, +, *, x, ., etc
+mark_color = 'cyan';     % alt options: red, green, blue, cyan, magenta, yellow, black, white
+marker_size = 14;
+line_width = 2;
+%--------------------------------------------------------------------------
+
+
+% Do you want to save each individual frame to file? (FOR ALL GENOTYPES)
+save_individual_images = true;
+
+% Choose genotypes to save movies to file
+save_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+
+% If you don't want to save any videos, leave string array blank:
+% save_movies = [];
+
+visualizeSegmentedOmmatidia(expInfo,raw_images,omma_centroids,...
+    marker_type,mark_color,marker_size, line_width, ...
+    save_individual_images,save_movies)
+
+
+
+%%
+%--------------------------------------------------------------------------
+% triangulate points and find neighbors
+%--------------------------------------------------------------------------
 
 [omma_triangles,clean_omma_centroids,delaunay_neighbors] ... 
     = triangulateAndFindNeighbors(omma_centroids);
@@ -144,8 +180,31 @@ adultOmmatidiaSeg
 
 %%
 %--------------------------------------------------------------------------
+% visualize triangulation
+%--------------------------------------------------------------------------
+
+% Do you want to save each individual frame to file? (FOR ALL GENOTYPES)
+save_individual_images = true;
+
+% Choose genotypes to save movies to file
+save_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+
+% If you don't want to save any videos, leave string array blank:
+% save_movies = [];
+
+visualizeTriangulation(expInfo,raw_images,omma_triangles,...
+    save_individual_images,save_movies)
+
+
+
+%%
+%--------------------------------------------------------------------------
 % visualize neighbors of each ommatidia at the specified time point
 % option to save image to file
+
+% NOTE: this will make a movie of a single image (not multiple images from
+% a given genotype), displaying neighbors of each ommatidia from your
+% chosen image
 %--------------------------------------------------------------------------
 
 which_file = 2;

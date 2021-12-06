@@ -71,15 +71,13 @@ full_genotype = ...
 save_individual_images = true;
 
 % Choose genotypes to save movies to file
-genotype_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+save_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
 
-% Choose genotypes to display movie now
-genotype_display = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+% If you don't want to save any videos, leave string array blank:
+% save_movies = [];
 
 visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
-    save_individual_images, ...
-    genotype_movies, ...
-    genotype_display)
+    save_individual_images, save_movies)
 
 
 
@@ -138,6 +136,29 @@ adultOmmatidiaSeg
 
 %%
 %--------------------------------------------------------------------------
+% visualize segmented ommatidia
+%--------------------------------------------------------------------------
+
+% Choose how to visualize segmented ommatidia
+display_type = '+'; %alt options: o, x, ., etc
+disp
+
+% Do you want to save each individual frame to file? (FOR ALL GENOTYPES)
+save_individual_images = true;
+
+% Choose genotypes to save movies to file
+save_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+
+% If you don't want to save any videos, leave string array blank:
+% save_movies = [];
+
+visualizeSegmentedOmmatidia(expInfo,raw_images,omma_centroids,...
+    display_type,save_individual_images,save_movies)
+
+
+
+%%
+%--------------------------------------------------------------------------
 % triangulate points and find neighbors
 %--------------------------------------------------------------------------
 
@@ -149,8 +170,31 @@ adultOmmatidiaSeg
 
 %%
 %--------------------------------------------------------------------------
+% visualize triangulation
+%--------------------------------------------------------------------------
+
+% Do you want to save each individual frame to file? (FOR ALL GENOTYPES)
+save_individual_images = true;
+
+% Choose genotypes to save movies to file
+save_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+
+% If you don't want to save any videos, leave string array blank:
+% save_movies = [];
+
+visualizeTriangulation(expInfo,raw_images,omma_triangles,...
+    save_individual_images,save_movies)
+
+
+
+%%
+%--------------------------------------------------------------------------
 % visualize neighbors of each ommatidia at the specified time point
 % option to save image to file
+
+% NOTE: this will make a movie of a single image (not multiple images from
+% a given genotype), displaying neighbors of each ommatidia from your
+% chosen image
 %--------------------------------------------------------------------------
 
 which_file = 2;
