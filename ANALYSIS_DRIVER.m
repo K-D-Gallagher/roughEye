@@ -9,14 +9,42 @@
 % Eye structure from images containing lattice edges
 % Eye Sicle
 
+% REAP
+% Rough Eye Analysis Program
+
+
+%%
+%--------------------------------------------------------------------------
+% CROP LOOP?
+%--------------------------------------------------------------------------
+
+
+
+
+
 %%
 %--------------------------------------------------------------------------
 % record experiment metadata
 %--------------------------------------------------------------------------
 
-experimentID = 'test';
-genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
-initializeExperiment(experimentID)
+% NOTE: the ilastik files (.h5 extension) should remain in the same folder
+% as the raw images. This is the default behavior from Ilastik, so this
+% should not be an issue.
+filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/cropped_images_768/';
+% [baseFileName, folder] = uiputfile(defaultFileName, 'Specify a file');
+
+experimentID = '21.12.03_test'; % NO SPACES PLEASE
+genotype_code = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+full_genotype = ...
+    ["mir7" ...
+    "UAS-Myc_control" ...
+    "MycOverExpr" ...
+    "UAS-Myc_control" ...
+    "GMR>Gal4_control" ...
+    "GMR>Gal4_control mir7delta" ...
+    "MycOverExpr mir7delta"];
+
+[expInfo] = initializeExperiment(experimentID,genotype_code,full_genotype,filepath);
 
 
 %%
@@ -27,11 +55,6 @@ initializeExperiment(experimentID)
 % Here, we will read in our raw data and the corresponding pixel
 % classification files exported from Ilastik.
 
-% NOTE: the ilastik files (.h5 extension) should remain in the same folder
-% as the raw images. This is the default behavior from Ilastik, so this
-% should not be an issue.
-
-filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/cropped_images_768/';
 [raw_images, ilastik_probabilities] = loadData(filepath);
 
 
@@ -90,6 +113,7 @@ filepath = '/Users/kevin/Documents/MATLAB/forSha/omma_cent_disp_handCorrect_firs
 % Load the GUI for hand-correcting segmentation. The GUI will allow you to
 % export the 'omma_centroids' variable
 
+omma_cent = omma_centroids;
 adultOmmatidiaSeg
 
 
@@ -120,11 +144,11 @@ adultOmmatidiaSeg
 % option to save image to file
 %--------------------------------------------------------------------------
 
-time_point = 2;
+which_file = 2;
 save = false;
 
 visualizeOmmaNeighbors(raw_images,clean_omma_centroids,...
-    omma_triangles,delaunay_neighbors,time_point,save)
+    omma_triangles,delaunay_neighbors,which_file,save)
 
 
     

@@ -9,14 +9,41 @@
 % Eye structure from images containing lattice edges
 % Eye Sicle
 
+% REAP
+% Rough Eye Analysis Program
+
+
+%%
+%--------------------------------------------------------------------------
+% CROP LOOP?
+%--------------------------------------------------------------------------
+
+
+
+
+
 %%
 %--------------------------------------------------------------------------
 % record experiment metadata
 %--------------------------------------------------------------------------
 
-experimentID = 'test';
-genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
-initializeExperiment(
+% NOTE: the ilastik files (.h5 extension) should remain in the same folder
+% as the raw images. This is the default behavior from Ilastik, so this
+% should not be an issue.
+filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/cropped_images_768/';
+
+experimentID = '21.12.03_test';
+genotype_code = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+full_genotype = ...
+    ["mir7" ...
+    "q5" ...
+    "q9" ...
+    "q11" ...
+    "q12" ...
+    "GMR<" ...
+    "mir7 +Myc"];
+
+initializeExperiment(experimentID,genotype_code,full_genotype,filepath)
 
 
 %%
@@ -27,31 +54,22 @@ initializeExperiment(
 % Here, we will read in our raw data and the corresponding pixel
 % classification files exported from Ilastik.
 
-% NOTE: the ilastik files (.h5 extension) should remain in the same folder
-% as the raw images. This is the default behavior from Ilastik, so this
-% should not be an issue.
-
-filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/cropped_images_768/';
 [raw_images, ilastik_probabilities] = loadData(filepath);
 
 
 
 %%
 %--------------------------------------------------------------------------
-% show ilastik classification probabilities on top of raw image
+% show ilastik classification probabilities on top of raw image with the
+% option to save video to file
 %--------------------------------------------------------------------------
 
 % This is an optional block of code that will display a fusion of the raw
 % images (green hue) with ilastik probabilities (purple huge)
 
-% loop through number of images
-for i = 1:size(raw_images,4)
-    
-    % show the ith image
-    imshowpair(raw_images(:,:,:,i),ilastik_probabilities(:,:,i))
-    pause(0.5)
-    
-end
+save = false;
+
+visualizeIlastikProbabilities(raw_images,ilastik_probabilities,save)
 
 
 
@@ -94,6 +112,7 @@ filepath = '/Users/kevin/Documents/MATLAB/forSha/omma_cent_disp_handCorrect_firs
 % Load the GUI for hand-correcting segmentation. The GUI will allow you to
 % export the 'omma_centroids' variable
 
+omma_cent = omma_centroids;
 adultOmmatidiaSeg
 
 
@@ -124,11 +143,11 @@ adultOmmatidiaSeg
 % option to save image to file
 %--------------------------------------------------------------------------
 
-time_point = 2;
+which_file = 2;
 save = false;
 
 visualizeOmmaNeighbors(raw_images,clean_omma_centroids,...
-    omma_triangles,delaunay_neighbors,time_point,save)
+    omma_triangles,delaunay_neighbors,which_file,save)
 
 
     
