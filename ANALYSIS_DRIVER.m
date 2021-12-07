@@ -3,14 +3,20 @@
 % define ommatidial lattice topology, and quantify roughness phenotype
 % K-D-Gallagher https://github.com/K-D-Gallagher 2021
 
-% Rough Eye Direct edge recovery system
+%----------------------
+% Software title ideas:
+%----------------------
 % Rough-EyeDERS
+% Rough Eye Direct edge recovery system
 
-% Eye structure from images containing lattice edges
 % Eye Sicle
+% Eye structure from images containing lattice edges
 
 % REAP
 % Rough Eye Analysis Program
+
+% REALIZE
+% Rough Eye Analysis via Lattice Orginization Estimate
 
 
 %%
@@ -21,13 +27,15 @@
 % NOTE: the ilastik files (.h5 extension) should remain in the same folder
 % as the raw images. This is the default behavior from Ilastik, so this
 % should not be an issue.
-filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/cropped_images_768/';
-% [baseFileName, folder] = uiputfile(defaultFileName, 'Specify a file');
+
+filepath = uigetdir;
+filepath = strcat(filepath,'/');
+% filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/cropped_images_768/';
 
 experimentID = '21.12.03 test'; % NO UNDERSCORES (_) please
 genotype_code = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
 full_genotype = ...
-    ["mir7" ...
+    ["mir7delta positive control" ...
     "UAS-Myc Control" ...
     "MycOverExpr" ...
     "UAS-Myc Control" ...
@@ -43,7 +51,7 @@ full_genotype = ...
 % read in data
 %--------------------------------------------------------------------------
 
-% Here, we will read in our raw data and the corresponding pixel
+% Here, we will read in our raw images and the corresponding pixel
 % classification files exported from Ilastik.
 
 [raw_images, ilastik_probabilities] = loadData(filepath);
@@ -52,21 +60,32 @@ full_genotype = ...
 
 %%
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % visualize ilastik classification overlaid on raw images
+%
+%
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 % raw images = green hue
 % ilastik classification = purple huge
 
-
+%----------------------------------------------------------------------
 % Do you want to save each individual frame to file? (FOR ALL GENOTYPES)
+%----------------------------------------------------------------------
 save_individual_images = true;
 
+%----------------------------------------
 % Choose genotypes to save movies to file
+%----------------------------------------
+% NOTE: specify which ones you want via your genotype_code
 save_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
 
 % If you don't want to save any videos, leave string array blank:
 % save_movies = [];
 
+% call function
 visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
     save_individual_images, save_movies)
 
@@ -74,7 +93,13 @@ visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
 
 %%
 %--------------------------------------------------------------------------
-% Segment ommatidia
+%--------------------------------------------------------------------------
+%
+%
+% Segment ommatidia from Ilastik classification
+%
+%
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
 % Compute the centroids of the ommatidia we've detected via pixel
@@ -91,21 +116,27 @@ visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
 
 
 
-%% 
-%--------------------------------------------------------------------------
-% OPTIONAL: READ IN OMMATIDIA CENTROIDS FROM FILE
-% This is an alternative to segmenting ommatidia from Ilastik pixel
-% classification
-%--------------------------------------------------------------------------
-
-filepath = '/Users/kevin/Documents/MATLAB/forSha/omma_cent_disp_handCorrect_first75/*tif';
-[omma_centroids] = loadCentroidsFromFile(filepath);
+% %% 
+% %--------------------------------------------------------------------------
+% % OPTIONAL: READ IN OMMATIDIA CENTROIDS FROM FILE
+% % This is an alternative to segmenting ommatidia from Ilastik pixel
+% % classification
+% %--------------------------------------------------------------------------
+% 
+% filepath = '/Users/kevin/Documents/MATLAB/forSha/omma_cent_disp_handCorrect_first75/*tif';
+% [omma_centroids] = loadCentroidsFromFile(filepath);
 
 
 
 %%
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % hand correct using GUI
+%
+%
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
 % Load the GUI for hand-correcting segmentation. The GUI will allow you to
@@ -118,7 +149,13 @@ adultOmmatidiaSeg
 
 %%
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % define ROI for each image and throw away centroids not in ROI
+%
+%
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
 [omma_centroids] = customROI(raw_images,omma_centroids);
@@ -127,7 +164,13 @@ adultOmmatidiaSeg
 
 %%
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % visualize segmented ommatidia
+%
+%
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
 
@@ -161,7 +204,13 @@ visualizeSegmentedOmmatidia(expInfo,raw_images,omma_centroids,...
 
 %%
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % triangulate points and find neighbors
+%
+%
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
 [omma_triangles,clean_omma_centroids,delaunay_neighbors] ... 
@@ -171,7 +220,13 @@ visualizeSegmentedOmmatidia(expInfo,raw_images,omma_centroids,...
 
 %%
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % visualize triangulation
+%
+%
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
 % Do you want to save each individual frame to file?
@@ -187,16 +242,51 @@ visualizeTriangulation(expInfo,raw_images,omma_triangles,...
     save_individual_images,save_movies)
 
 
+%% visualize triangle areas
+
+%     %-----------------------------
+%     % visualization triangle areas
+%     %-----------------------------
+%     
+%     % colormap of triangle area
+%     max_area = round(max(triangle_areas{t}));
+%     min_area = round(min(triangle_areas{t}));
+%     area_range = min_area:max_area;
+%     colormap = parula(length(min_area:max_area));
+%     colors = zeros(length(triangle_areas{t}),3);
+%     for q = 1:length(triangle_areas{t})
+%         [~,LOCB] = ismember(round(triangle_areas{t}(q)),area_range);
+%         colors(q,:) = colormap(LOCB,:);
+%     end
+%     
+%     imshow(raw_images(:,:,:,t))
+%     hold on
+%     triplot(edge_clean_triangulation{t},'LineWidth',2,'Color','cyan')
+%     patch('vertices', clean_omma_centroids{t},'Faces', edge_clean_delaunay{t}, ...
+%         'FaceColor','flat', 'FaceVertexCData', colors, 'CDataMapping', 'direct', ...
+%         'FaceAlpha', 1);
+%     hold off
+%     drawnow
+%     filename = ['/Users/kevin/Documents/MATLAB/forSha/media/triangle_areas/T=' num2str(t,'%03i') '.png'];
+%     print(gcf,'-dpng',filename)
+
+
 
 %%
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % visualize neighbors of each ommatidia at the specified time point
 % option to save image to file
-
+%
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 % NOTE: this will make a movie of a single image (not multiple images from
 % a given genotype), displaying neighbors of each ommatidia from your
 % chosen image
-%--------------------------------------------------------------------------
+
 
 which_file = 2;
 save = false;
@@ -207,9 +297,18 @@ visualizeOmmaNeighbors(raw_images,clean_omma_centroids,...
 
     
 %%
+
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % Coefficient of Variation (COV) across all ommatidia of each genotype
+%
+%
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+% aggregate COV measurements of ommatidia from multiple images according to
+% their genotype
 
 %-------------------------
 % WHICH GENOTYPES TO PLOT?
@@ -236,21 +335,60 @@ covPerGeno(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
     x_label, y_label, axes_label_size)
 
 
-%%
-%--------------------------------------------------------------------------
-% calculate Coefficient of Variation across ommatidia for each image and
-% then average multiple images according to genotype
-%--------------------------------------------------------------------------
-
-covPerImage(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors)
-
-
 
 %%
+
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
+% Coefficient of Variation (COV) calculated for each image and
+% then average images according to genotype
+%
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+%-------------------------
+% WHICH GENOTYPES TO PLOT?
+%-------------------------
+target_genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+% target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
+
+%-------------
+% PLOT OPTIONS
+%-------------
+plot_style = "violin plot";
+ascending_mean = true;              % do you want to sort genotypes by ascending mean?
+genotype_labels = genotype_code;    % x-axis genotype labels - do you want to use the short hand code or full genotype?
+x_axis_text_angle = 0;              % choose angle of x-axis text (rotate so they don't overlap)
+plot_title = "Coefficient of Variation (COV) of inter-R8-distance";
+title_size = 20;
+x_label = "Genotypes";
+y_label = "Coefficient of Variation (COV)";
+axes_label_size = 16;
+
+covPerImage(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
+    target_genotypes, plot_style,ascending_mean,genotype_labels, ...
+    x_axis_text_angle, plot_title, title_size, ...
+    x_label, y_label, axes_label_size)
+
+
+
+%%
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % analyze inter-R8-distance (not coefficient of variation) via raw
 % distributions and eCDFs
+%
+%
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+
 
 interR8distancePerGeno(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors)
 
