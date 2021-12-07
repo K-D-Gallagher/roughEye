@@ -342,54 +342,27 @@ figure_count = 0;
 
 if any(strcmp(plot_style,'mean & std'))
     
-    if ascending_mean
-        
-        % update figure count and generate new figure
-        figure_count = figure_count + 1;
-        figure(figure_count)
-
-        % plot
-        er = errorbar(alt_sorted_mean_COV,alt_sorted_std_COV/2,'o','Linewidth',2);
-        xticks(linspace(1,length(target_genotypes),length(target_genotypes)))
-        xticklabels(alt_sorted_genotype_labels)
-        xlim([0 8])
-        er.Color = [0 0 0];                            
-        er.LineStyle = 'none'; 
-        ax = gca;
-        ax.FontSize = axes_label_size; 
-
-        % title and axes labels
-        title([plot_title],'FontSize',title_size)
-        xlabel([x_label],'FontSize',axes_label_size)
-        ylabel([y_label],'FontSize',axes_label_size)
-
-        xtickangle(x_axis_text_angle)
-        
-    else
+    % update figure count and generate new figure
+    figure_count = figure_count + 1;
+    figure(figure_count)
     
-        % update figure count and generate new figure
-        figure_count = figure_count + 1;
-        figure(figure_count)
-
-        % plot
-        er = errorbar(alt_mean_COV,alt_std_COV/2,'o','Linewidth',2);
-        xticks(linspace(1,length(target_genotypes),length(target_genotypes)))
-        xticklabels(alt_genotype_labels)
-        xlim([0 length(target_genotypes)+1])
-        er.Color = [0 0 0];                            
-        er.LineStyle = 'none'; 
-        ax = gca;
-        ax.FontSize = axes_label_size; 
-
-        % title and axes labels
-        title([plot_title],'FontSize',title_size)
-        xlabel([x_label],'FontSize',axes_label_size)
-        ylabel([y_label],'FontSize',axes_label_size)
-
-        xtickangle(x_axis_text_angle)
-
-    end
+    % plot
+    er = errorbar(alt_sorted_mean_COV,alt_sorted_std_COV/2,'o','Linewidth',2);
+    xticks(linspace(1,length(target_genotypes),length(target_genotypes)))
+    xticklabels(alt_sorted_genotype_labels)
+    xlim([0 8])
+    er.Color = [0 0 0];                            
+    er.LineStyle = 'none'; 
+    ax = gca;
+    ax.FontSize = 16; 
     
+    % title and axes labels
+    title(['mean inter-R8-distance COV'],'FontSize',16)
+    xlabel(['genotype'],'FontSize',16)
+    ylabel(['coefficeint of variation'],'FontSize',16)
+    
+    xtickangle(x_axis_text_angle)
+
 end
 
 
@@ -407,9 +380,9 @@ if any(strcmp(plot_style,'box plot'))
 
         boxplot(alt_sorted_COV_matrix_form)
         set(gca,'xticklabel',alt_sorted_genotype_labels)
-        title(plot_title,'FontSize',title_size)
-        xlabel([x_label])
-        ylabel([y_label])
+        title('inter-R8-distance COV boxplot')
+        xlabel(['genotype'])
+        ylabel(['coefficient of variation'])
         ax = gca;
         ax.FontSize = axes_label_size;
 
@@ -424,9 +397,9 @@ if any(strcmp(plot_style,'box plot'))
 
         boxplot(alt_COV_matrix_form)
         set(gca,'xticklabel',alt_genotype_labels)
-        title(plot_title,'FontSize',title_size)
-        xlabel([x_label])
-        ylabel([y_label])
+        title('inter-R8-distance COV boxplot')
+        xlabel(['genotype'])
+        ylabel(['coefficient of variation'])
         ax = gca;
         ax.FontSize = axes_label_size;
 
@@ -450,7 +423,7 @@ if any(strcmp(plot_style,'violin plot'))
         figure(figure_count)
         
         vs = violinplot(alt_sorted_COV_matrix_form,alt_sorted_genotype_labels,'ShowMean',true);
-        title(plot_title,'FontSize',title_size)
+        title(plot_title)
         xlabel([x_label])
         ylabel([y_label])
         ax = gca;
@@ -465,7 +438,7 @@ if any(strcmp(plot_style,'violin plot'))
         figure(figure_count)
         
         vs = violinplot(alt_COV_matrix_form,alt_genotype_labels,'ShowMean',true);
-        title(plot_title,'FontSize',title_size)
+        title(plot_title)
         xlabel([x_label])
         ylabel([y_label])
         ax = gca;

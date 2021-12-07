@@ -1,9 +1,0 @@
-function visualizeTriangulation(expInfo,raw_images,omma_triangles)
-
-
-
-
-    imshow(raw_images(:,:,:,t))
-    hold on
-    triplot(omma_triangles{t},'LineWidth',2,'Color','cyan')
-    hold off

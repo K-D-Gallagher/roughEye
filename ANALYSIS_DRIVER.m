@@ -15,15 +15,6 @@
 
 %%
 %--------------------------------------------------------------------------
-% CROP LOOP?
-%--------------------------------------------------------------------------
-
-
-
-
-
-%%
-%--------------------------------------------------------------------------
 % record experiment metadata
 %--------------------------------------------------------------------------
 
@@ -37,11 +28,11 @@ experimentID = '21.12.03 test'; % NO UNDERSCORES (_) please
 genotype_code = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
 full_genotype = ...
     ["mir7" ...
-    "UAS-Myc_control" ...
+    "UAS-Myc Control" ...
     "MycOverExpr" ...
-    "UAS-Myc_control" ...
-    "GMR>Gal4_control" ...
-    "GMR>Gal4_control mir7delta" ...
+    "UAS-Myc Control" ...
+    "GMR>Gal4 Control" ...
+    "GMR>Gal4 Control mir7delta" ...
     "MycOverExpr mir7delta"];
 
 [expInfo] = initializeExperiment(experimentID,genotype_code,full_genotype,filepath);
@@ -127,7 +118,7 @@ adultOmmatidiaSeg
 
 %%
 %--------------------------------------------------------------------------
-% OPTIONAL: define ROI for each image and throw away centroids not in ROI
+% define ROI for each image and throw away centroids not in ROI
 %--------------------------------------------------------------------------
 
 [omma_centroids] = customROI(raw_images,omma_centroids);
@@ -183,7 +174,7 @@ visualizeSegmentedOmmatidia(expInfo,raw_images,omma_centroids,...
 % visualize triangulation
 %--------------------------------------------------------------------------
 
-% Do you want to save each individual frame to file? (FOR ALL GENOTYPES)
+% Do you want to save each individual frame to file?
 save_individual_images = true;
 
 % Choose genotypes to save movies to file
@@ -217,10 +208,32 @@ visualizeOmmaNeighbors(raw_images,clean_omma_centroids,...
     
 %%
 %--------------------------------------------------------------------------
-% calculate Coefficient of Variation across all ommatidia of each genotype
+% Coefficient of Variation (COV) across all ommatidia of each genotype
 %--------------------------------------------------------------------------
 
-covPerGeno(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
+%-------------------------
+% WHICH GENOTYPES TO PLOT?
+%-------------------------
+target_genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+% target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
+
+%-------------
+% PLOT OPTIONS
+%-------------
+plot_style = "violin plot";
+ascending_mean = true;              % do you want to sort genotypes by ascending mean?
+genotype_labels = genotype_code;    % x-axis genotype labels - do you want to use the short hand code or full genotype?
+x_axis_text_angle = 0;              % choose angle of x-axis text (rotate so they don't overlap)
+plot_title = "Coefficient of Variation (COV) of inter-R8-distance";
+title_size = 20;
+x_label = "Genotypes";
+y_label = "Coefficient of Variation (COV)";
+axes_label_size = 16;
+
+covPerGeno(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
+    target_genotypes, plot_style,ascending_mean,genotype_labels, ...
+    x_axis_text_angle, plot_title, title_size, ...
+    x_label, y_label, axes_label_size)
 
 
 %%
@@ -229,7 +242,7 @@ covPerGeno(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
 % then average multiple images according to genotype
 %--------------------------------------------------------------------------
 
-covPerImage(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
+covPerImage(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors)
 
 
 
@@ -239,7 +252,7 @@ covPerImage(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
 % distributions and eCDFs
 %--------------------------------------------------------------------------
 
-interR8distancePerGeno(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
+interR8distancePerGeno(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors)
 
 
 
