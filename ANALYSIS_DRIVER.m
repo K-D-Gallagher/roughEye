@@ -19,15 +19,6 @@
 % Rough Eye Analysis via Lattice Orginization Estimate
 
 
-%% 
-%--------------------------------------------------------------------------
-% update from github
-%--------------------------------------------------------------------------
-
-dependencies={'https://github.com/K-D-Gallagher/roughEye'};
-githubSync(dependencies)
-
-
 %%
 %--------------------------------------------------------------------------
 % initialize experiment and read in data
