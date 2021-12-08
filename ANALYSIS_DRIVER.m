@@ -142,8 +142,25 @@ visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
 % Load the GUI for hand-correcting segmentation. The GUI will allow you to
 % export the 'omma_centroids' variable
 
-omma_cent = omma_centroids;
 adultOmmatidiaSeg
+
+
+
+%%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
+% IF MATLAB CRASHES WHILE USING GUI:
+% reload omma_centroids from backup file
+%
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+
+load('backup_omma_centroids.mat')
+
 
 
 
@@ -302,7 +319,10 @@ visualizeOmmaNeighbors(raw_images,clean_omma_centroids,...
 %--------------------------------------------------------------------------
 %
 %
-% Coefficient of Variation (COV) across all ommatidia of each genotype
+% COV per Genotype
+%
+% Coefficient of Variation (COV) in inter-ommatidial-distance aggregated
+% according to genotype and then averaged
 %
 %
 %--------------------------------------------------------------------------
@@ -342,8 +362,11 @@ covPerGeno(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
 %--------------------------------------------------------------------------
 %
 %
-% Coefficient of Variation (COV) calculated for each image and
-% then average images according to genotype
+% COV per Image
+%
+% Average Coefficient of Variation (COV) in inter-ommatidial-distance
+% calculated for each image and then averaged across images according
+% to genotype
 %
 %
 %--------------------------------------------------------------------------
