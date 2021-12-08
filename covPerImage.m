@@ -23,6 +23,12 @@ function [] = ...
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
+num_meas = length(clean_omma_centroids);
+
+disp('\n')
+disp("Measuring COV of inter-ommatidial-distance and averaging per image.")
+disp("Then aggregating and averaging per genotype. Sample:   ")
+
 
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
@@ -42,7 +48,13 @@ COV_mean = zeros(length(clean_omma_centroids),1);
 
 for t = 1:length(clean_omma_centroids)
     
-    t
+    % display counter
+    if t > 1
+        for j=0:log10(t-1)
+          fprintf('\b'); % delete previous counter display
+        end
+        fprintf('%d',t)
+    end
     
     % boundary centroids for current time
     boundary_cent{t} = unique(boundary(clean_omma_centroids{t},0.8));
@@ -201,7 +213,7 @@ end
 COV_per_geno = cell(length(genotypes),1);
 ave_COV_per_geno = zeros(length(genotypes),1);
 std_COV_per_geno = zeros(length(genotypes),1);
-all_COV_per_geno = nan(100,length(genotypes));
+all_COV_per_geno = nan(1000,length(genotypes));
 sorted_COV_per_geno = all_COV_per_geno;
 
 for t = 1:num_meas
@@ -210,7 +222,7 @@ for t = 1:num_meas
     [~,LOCB] = ismember(genotype{t},genotypes);
     
     % add to sum for this genotype
-    COV_per_geno{LOCB} = [COV_per_geno{LOCB}  COV_mean(t,2)];
+    COV_per_geno{LOCB} = [COV_per_geno{LOCB}  COV_mean(t)];
     
 end
 
@@ -283,7 +295,7 @@ end
 % unsorted
 %---------
 
-alt_genotype_labels = [];
+alt_genotype_labels = {};
 alt_COV_per_geno = [];
 alt_ave_COV_per_geno = zeros(length(target_genotypes),1);
 alt_std_COV_per_geno = zeros(length(target_genotypes),1);
@@ -300,7 +312,7 @@ for j = 1:length(genotypes)
         
         count = count + 1;
         alt_genotype_labels{count} = genotype_labels(j); % for plotting
-        alt_COV_per_geno(:,count) = COV_per_geno(:,j);
+        alt_COV_per_geno(:,count) = all_COV_per_geno(:,j);
         alt_ave_COV_per_geno(count) = ave_COV_per_geno(j);
         alt_std_COV_per_geno(count) = std_COV_per_geno(j);
         
@@ -335,9 +347,9 @@ if any(strcmp(plot_style,'mean & std'))
         figure_count = figure_count + 1;
         figure(figure_count)
 
-        er = errorbar(sorted_ave_COV_per_geno,sorted_std_COV_per_geno/2,'o','Linewidth',2);
+        er = errorbar(alt_sorted_ave_COV_per_geno,alt_sorted_std_COV_per_geno/2,'o','Linewidth',2);
         xticks(linspace(1,length(target_genotypes),length(target_genotypes)))
-        xticklabels(sorted_area_genotype_name)
+        xticklabels(alt_sorted_genotype_labels)
         xlim([0 length(target_genotypes)+1])
         er.Color = [0 0 0];                            
         er.LineStyle = 'none';
@@ -357,6 +369,22 @@ if any(strcmp(plot_style,'mean & std'))
         figure_count = figure_count + 1;
         figure(figure_count)
         
+        er = errorbar(alt_ave_COV_per_geno,alt_std_COV_per_geno/2,'o','Linewidth',2);
+        xticks(linspace(1,length(target_genotypes),length(target_genotypes)))
+        xticklabels(alt_genotype_labels)
+        xlim([0 length(target_genotypes)+1])
+        er.Color = [0 0 0];                            
+        er.LineStyle = 'none';
+        ax = gca;
+        ax.FontSize = axes_label_size;
+
+        % title and axes labels
+        title([plot_title],'FontSize',title_size)
+        xlabel([x_label],'FontSize',axes_label_size)
+        ylabel([y_label],'FontSize',axes_label_size)
+        
+        xtickangle(x_axis_text_angle)
+        
         
     end
     
@@ -375,8 +403,8 @@ if any(strcmp(plot_style,'box plot'))
         figure_count = figure_count + 1;
         figure(figure_count)
 
-        boxplot(sorted_COV_per_geno)
-        set(gca,'xticklabel',sorted_genotypes)
+        boxplot(alt_sorted_COV_per_geno)
+        set(gca,'xticklabel',alt_sorted_genotype_labels)
         title(plot_title,'FontSize',title_size)
         xlabel(x_label)
         ylabel(y_label)
@@ -391,6 +419,15 @@ if any(strcmp(plot_style,'box plot'))
         figure_count = figure_count + 1;
         figure(figure_count)
         
+        boxplot(alt_COV_per_geno)
+        set(gca,'xticklabel',alt_genotype_labels)
+        title(plot_title,'FontSize',title_size)
+        xlabel(x_label)
+        ylabel(y_label)
+        ax = gca;
+        ax.FontSize = axes_label_size;
+        
+        xtickangle(x_axis_text_angle)
         
     end
     
@@ -409,7 +446,7 @@ if any(strcmp(plot_style,'violin plot'))
         figure_count = figure_count + 1;
         figure(figure_count)
 
-        vs = violinplot(sorted_COV_per_geno,sorted_genotypes,'ShowMean',true);
+        vs = violinplot(alt_sorted_COV_per_geno,alt_sorted_genotype_labels,'ShowMean',true);
         title(plot_title,'FontSize',title_size)
         xlabel(x_label)
         ylabel(y_label)
@@ -424,6 +461,14 @@ if any(strcmp(plot_style,'violin plot'))
         figure_count = figure_count + 1;
         figure(figure_count)
         
+        vs = violinplot(alt_COV_per_geno,alt_genotype_labels,'ShowMean',true);
+        title(plot_title,'FontSize',title_size)
+        xlabel(x_label)
+        ylabel(y_label)
+        ax = gca;
+        ax.FontSize = axes_label_size;
+        
+        xtickangle(x_axis_text_angle)
         
     end
     

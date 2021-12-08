@@ -352,8 +352,8 @@ covPerGeno(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
 %-------------------------
 % WHICH GENOTYPES TO PLOT?
 %-------------------------
-target_genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
-% target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
+% target_genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
+target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
 
 %-------------
 % PLOT OPTIONS

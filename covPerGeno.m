@@ -25,6 +25,10 @@ function [] = ...
 
 num_meas = length(clean_omma_centroids);
 
+disp('\n')
+disp("Measuring COV of inter-ommatidial-distance and aggregating across images")
+disp("based on genotype. Sample:   ")
+
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
@@ -43,7 +47,14 @@ dist_COV_mean = zeros(length(clean_omma_centroids),1);
 
 for t = 1:length(clean_omma_centroids)
     
-    t
+    % display counter
+    if t > 1
+        for j=0:log10(t-1)
+          fprintf('\b'); % delete previous counter display
+        end
+        fprintf('%d',t)
+    end
+    
     
     % boundary centroids for current time
     boundary_cent{t} = unique(boundary(clean_omma_centroids{t},0.8));
