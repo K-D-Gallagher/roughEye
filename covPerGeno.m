@@ -352,7 +352,7 @@ if any(strcmp(plot_style,'mean & std'))
         er = errorbar(alt_sorted_mean_COV,alt_sorted_std_COV/2,'o','Linewidth',2);
         xticks(linspace(1,length(target_genotypes),length(target_genotypes)))
         xticklabels(alt_sorted_genotype_labels)
-        xlim([0 8])
+        xlim([0 length(target_genotypes)+1])
         er.Color = [0 0 0];                            
         er.LineStyle = 'none'; 
         ax = gca;

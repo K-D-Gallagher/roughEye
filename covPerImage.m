@@ -13,7 +13,7 @@ function [] = ...
 %--------------------------------------------------------------------------
 
 % MAKE MEASUREMENTS
-% first find fano facter per ommatidia, average per eye, then additionally
+% first find COV per ommatidia, average per eye, then additionally
 % average multiple eyes with the same genotype
 
 %--------------------------------------------------------------------------
@@ -36,9 +36,9 @@ function [] = ...
 
 boundary_cent = cell(length(clean_omma_centroids),1);
 
-% initialize cell array for recording fano factor of omma
-dist_fano = cell(length(clean_omma_centroids),1);
-dist_fano_mean = zeros(length(clean_omma_centroids),1);
+% initialize cell array for recording COV of omma
+COV = cell(length(clean_omma_centroids),1);
+COV_mean = zeros(length(clean_omma_centroids),1);
 
 for t = 1:length(clean_omma_centroids)
     
@@ -52,7 +52,7 @@ for t = 1:length(clean_omma_centroids)
     y = clean_omma_centroids{t}(:,2);
     
     % initialize list for storing fano for omma in current eye
-    temp_dist_fano = nan(length(x),1);
+    temp_COV = nan(length(x),1);
     
     % loop through ommatidia - the identity of ommatidia is defined by their
     % position within 'clean_omma_centroids'
@@ -100,7 +100,7 @@ for t = 1:length(clean_omma_centroids)
             %--------------------------------------------
             
             % calculate variance
-            temp_dist_fano(j) = std(temp_distances) / mean(temp_distances);
+            temp_COV(j) = std(temp_distances) / mean(temp_distances);
 
         end
     end
@@ -108,8 +108,8 @@ for t = 1:length(clean_omma_centroids)
     %------------------------------------
     % record fano of triangle edge length
     %------------------------------------
-    dist_fano{t} = temp_dist_fano;
-    dist_fano_mean(t) = nanmean(temp_dist_fano);
+    COV{t} = temp_COV;
+    COV_mean(t) = nanmean(temp_COV);
         
         
 %         %---------------------------------------------------------
@@ -164,34 +164,13 @@ end
 
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
-%--------------------------------------------------------------------------
 %
 %
-% sort by mean fano factor
-% record genotype of each image
-% calculate average fano factor for each genotype
+% determine genotype for each image
 %
 %
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
-%--------------------------------------------------------------------------
-
-num_meas = length(dist_fano_mean);
-
-%------------------------------
-% sort according to fano factor
-%------------------------------
-
-%---------------------
-% distance fano factor
-%---------------------
-sorted_distance_fano = zeros(num_meas,2);
-% second column is the actual fano measurements
-sorted_distance_fano(:,2) = dist_fano_mean;
-% first column is just a list from 1:num_measurements so we can keep track
-% of original index after we've sorted according to column 2
-sorted_distance_fano(:,1) = linspace(1,num_meas,num_meas);
-sorted_distance_fano = sortrows(sorted_distance_fano,2);
 
 
 Directory = dir(strcat(filepath,'*.tif'));
@@ -200,13 +179,12 @@ Directory = dir(strcat(filepath,'*.tif'));
 % create vectors and cell arrays that record filename, genotype, and
 % plotting color for each image
 %--------------------------------------------------------------------------
-plt_color_vect = zeros(num_meas,3);
 namestr = cell(num_meas,1);
 genotype = cell(num_meas,1);
 for t = 1:num_meas
     
     % parse out filename
-    namestr{t} = Directory(sorted_distance_fano(t,1)).name;
+    namestr{t} = Directory(t).name;
     namestr{t} = namestr{t}(1:end-4);
     namestr{t} = strrep(namestr{t},'_',' ');
     
@@ -216,102 +194,237 @@ for t = 1:num_meas
     
 end
 
+
 %--------------------------------------------------------------------------
-% create average fano factor for each genotype - distance based fano
+% create average COV for each genotype - distance based fano
 %--------------------------------------------------------------------------
-sum_dist_fano_per_geno = cell(length(genotypes),1);
-ave_dist_fano_per_geno = zeros(length(genotypes),1);
-std_dist_fano_per_geno = zeros(length(genotypes),1);
-% counts_per_geno_dist = zeros(length(genotypes),1);
-all_dist_fano_per_geno = nan(100,length(genotypes));
-sorted_dist_fano_per_geno = all_dist_fano_per_geno;
+COV_per_geno = cell(length(genotypes),1);
+ave_COV_per_geno = zeros(length(genotypes),1);
+std_COV_per_geno = zeros(length(genotypes),1);
+all_COV_per_geno = nan(100,length(genotypes));
+sorted_COV_per_geno = all_COV_per_geno;
+
 for t = 1:num_meas
     
     % figure out which genotype index
     [~,LOCB] = ismember(genotype{t},genotypes);
     
     % add to sum for this genotype
-    sum_dist_fano_per_geno{LOCB} = [sum_dist_fano_per_geno{LOCB}  sorted_distance_fano(t,2)];
-    
-%     % update the count for this genotype
-%     counts_per_geno_dist(LOCB) = counts_per_geno_dist(LOCB) + 1;
+    COV_per_geno{LOCB} = [COV_per_geno{LOCB}  COV_mean(t,2)];
     
 end
 
+% compute average and std for each geno
 for j = 1:length(genotypes)
-    ave_dist_fano_per_geno(j) = mean(sum_dist_fano_per_geno{j});
-    std_dist_fano_per_geno(j) = std(sum_dist_fano_per_geno{j});
-    all_dist_fano_per_geno(1:length(sum_dist_fano_per_geno{j}),j) = sum_dist_fano_per_geno{j};
+    ave_COV_per_geno(j) = mean(COV_per_geno{j});
+    std_COV_per_geno(j) = std(COV_per_geno{j});
+    all_COV_per_geno(1:length(COV_per_geno{j}),j) = COV_per_geno{j};
 end
+
+
 
 %--------------------------------------------------------------------------
-% sort distributions of distance fano factor according to mean fano factor levels
+% sort distributions of distance COV according to mean COV levels
 %--------------------------------------------------------------------------
 
 dist_sort_order = zeros(length(genotypes),3);
 dist_sort_order(1:end,1) = 1:length(genotypes);         % entry 1: index from 1:num_genotypes
-dist_sort_order(1:end,2) = ave_dist_fano_per_geno;      % entry 2: average fano factor for genotypes
-dist_sort_order(1:end,3) = std_dist_fano_per_geno;      % entry 3: standard deviation for genotypes
-dist_sort_order = sortrows(dist_sort_order,2);          % sort according to mean fano factor
+dist_sort_order(1:end,2) = ave_COV_per_geno;      % entry 2: average COV for genotypes
+dist_sort_order(1:end,3) = std_COV_per_geno;      % entry 3: standard deviation for genotypes
+dist_sort_order = sortrows(dist_sort_order,2);          % sort according to mean COV
 
 for k = 1:length(genotypes)
     j = dist_sort_order(k,1);   % record genotype index
-    sorted_dist_fano_per_geno(1:length(sum_dist_fano_per_geno{j}),k) = sum_dist_fano_per_geno{j};
-    sorted_dist_genotype_name{k} = genotypes{j};
+    sorted_COV_per_geno(1:length(COV_per_geno{j}),k) = COV_per_geno{j};
+    sorted_genotypes{k} = genotypes{j};
+    sorted_genotype_labels(k) = genotype_labels(j);     % for plotting
+    sorted_ave_COV_per_geno(k) = ave_COV_per_geno(j);
+    sorted_std_COV_per_geno(k) = std_COV_per_geno(j);
 end
 
 
-%------------------------------------------------------------------
-%------------------------------------------------------------------
-%------------------------------------------------------------------
 
+
+%--------------------------------------------------------------------------
+% pull out target genotypes for plotting
+%--------------------------------------------------------------------------
+
+%---------------
+% sorted by mean
+%---------------
+
+alt_sorted_genotype_labels = [];
+alt_sorted_COV_per_geno = [];
+alt_sorted_ave_COV_per_geno = zeros(length(target_genotypes),1);
+alt_sorted_std_COV_per_geno = zeros(length(target_genotypes),1);
+
+count = 0;
+
+for j = 1:length(sorted_genotypes)
+    
+    % check if current genotype in 'sorted_genotypes' is part of our list
+    % of genotypes to plot
+    [LIA,~] = ismember(sorted_genotypes(j),target_genotypes);
+    
+    if LIA
+        
+        count = count + 1;
+        alt_sorted_genotype_labels{count} = sorted_genotype_labels(j); % for plotting
+        alt_sorted_COV_per_geno(:,count) = sorted_COV_per_geno(:,j);
+        alt_sorted_ave_COV_per_geno(count) = sorted_ave_COV_per_geno(j);
+        alt_sorted_std_COV_per_geno(count) = sorted_std_COV_per_geno(j);
+        
+    end
+    
+end
+
+
+%---------
+% unsorted
+%---------
+
+alt_genotype_labels = [];
+alt_COV_per_geno = [];
+alt_ave_COV_per_geno = zeros(length(target_genotypes),1);
+alt_std_COV_per_geno = zeros(length(target_genotypes),1);
+
+count = 0;
+
+for j = 1:length(genotypes)
+    
+    % check if current genotype in 'sorted_genotypes' is part of our list
+    % of genotypes to plot
+    [LIA,~] = ismember(genotypes(j),target_genotypes);
+    
+    if LIA
+        
+        count = count + 1;
+        alt_genotype_labels{count} = genotype_labels(j); % for plotting
+        alt_COV_per_geno(:,count) = COV_per_geno(:,j);
+        alt_ave_COV_per_geno(count) = ave_COV_per_geno(j);
+        alt_std_COV_per_geno(count) = std_COV_per_geno(j);
+        
+    end
+    
+end
+
+
+
+
+%------------------------------------------------------------------
+%------------------------------------------------------------------
+%
+%
 % plot
-
+%
+%
 %------------------------------------------------------------------
 %------------------------------------------------------------------
-%------------------------------------------------------------------
+
+figure_count = 0;
+
+%--------------------------------------------------------------------------
+% mean + std
+%--------------------------------------------------------------------------
+
+if any(strcmp(plot_style,'mean & std'))
+    
+    if ascending_mean
+        
+        % update figure count and generate new figure
+        figure_count = figure_count + 1;
+        figure(figure_count)
+
+        er = errorbar(sorted_ave_COV_per_geno,sorted_std_COV_per_geno/2,'o','Linewidth',2);
+        xticks(linspace(1,length(target_genotypes),length(target_genotypes)))
+        xticklabels(sorted_area_genotype_name)
+        xlim([0 length(target_genotypes)+1])
+        er.Color = [0 0 0];                            
+        er.LineStyle = 'none';
+        ax = gca;
+        ax.FontSize = axes_label_size;
+
+        % title and axes labels
+        title([plot_title],'FontSize',title_size)
+        xlabel([x_label],'FontSize',axes_label_size)
+        ylabel([y_label],'FontSize',axes_label_size)
+        
+        xtickangle(x_axis_text_angle)
+        
+    else
+        
+        % update figure count and generate new figure
+        figure_count = figure_count + 1;
+        figure(figure_count)
+        
+        
+    end
+    
+end
 
 
+%--------------------------------------------------------------------------
+% boxplot
+%--------------------------------------------------------------------------
 
-% %------------------------
-% % plot mean and error bar
-% %------------------------
-% 
-% subplot(1,3,1)
-% 
-% er = errorbar(area_sort_order(:,2),area_sort_order(:,3)/2,'o','Linewidth',2);
-% xticks([1 2 3 4 5 6 7])
-% xticklabels(sorted_area_genotype_name)
-% xlim([0 8])
-% er.Color = [0 0 0];                            
-% er.LineStyle = 'none';
-% ax = gca;
-% ax.FontSize = 16;
-% 
-% title(['mean Inter-R8-distance COV'],'FontSize',16)
-% xlabel(['Genotype'],'FontSize',16)
-% ylabel(['Coefficient of Variation'],'FontSize',16)
-% 
-% hold off
-% 
-% 
-% % boxplot
-% 
-% subplot(1,3,2)
-% boxplot(sorted_dist_fano_per_geno)
-% set(gca,'xticklabel',sorted_dist_genotype_name)
-% title('Inter-R8-distance COV boxplot')
-% xlabel(['Genotype'])
-% ylabel(['Coefficient of Variation'])
-% ax = gca;
-% ax.FontSize = 16;
+if any(strcmp(plot_style,'box plot'))
+    
+    if ascending_mean
+        
+        % update figure count and generate new figure
+        figure_count = figure_count + 1;
+        figure(figure_count)
 
+        boxplot(sorted_COV_per_geno)
+        set(gca,'xticklabel',sorted_genotypes)
+        title(plot_title,'FontSize',title_size)
+        xlabel(x_label)
+        ylabel(y_label)
+        ax = gca;
+        ax.FontSize = axes_label_size;
+        
+        xtickangle(x_axis_text_angle)
+        
+    else
+        
+        % update figure count and generate new figure
+        figure_count = figure_count + 1;
+        figure(figure_count)
+        
+        
+    end
+    
+end
+
+
+%--------------------------------------------------------------------------
 % violin plot
+%--------------------------------------------------------------------------
 
-% subplot(1,3,3)
-vs = violinplot(sorted_dist_fano_per_geno,sorted_dist_genotype_name,'ShowMean',true);
-title('Inter-R8-distance COV violin plot')
-xlabel(['Genotype'])
-ylabel(['Coefficient of Variation'])
-ax = gca;
-ax.FontSize = 16;
+if any(strcmp(plot_style,'violin plot'))
+    
+    if ascending_mean
+        
+        % update figure count and generate new figure
+        figure_count = figure_count + 1;
+        figure(figure_count)
+
+        vs = violinplot(sorted_COV_per_geno,sorted_genotypes,'ShowMean',true);
+        title(plot_title,'FontSize',title_size)
+        xlabel(x_label)
+        ylabel(y_label)
+        ax = gca;
+        ax.FontSize = axes_label_size;
+        
+        xtickangle(x_axis_text_angle)
+        
+    else
+        
+        % update figure count and generate new figure
+        figure_count = figure_count + 1;
+        figure(figure_count)
+        
+        
+    end
+    
+end
