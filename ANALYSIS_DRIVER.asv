@@ -20,12 +20,10 @@
 
 
 %% 
-%--------------------------------------------------------------------------
-% update from github
-%--------------------------------------------------------------------------
 
-dependencies={'https://github.com/K-D-Gallagher/roughEye'};
-githubSync(dependencies)
+dependencies={...
+	'https://github.com/K-D-Gallagher/roughEye'
+
 
 
 %%
