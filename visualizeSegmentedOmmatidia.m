@@ -66,7 +66,7 @@ for i = 1:numberOfFrames
     end
     
 	thisFrame = getframe(gca);
-	myMovie(i) = thisFrame;
+	myMovie(i) = imresize(thisFrame,[vidHeight,vidWidth]);
     hold off
     
 end

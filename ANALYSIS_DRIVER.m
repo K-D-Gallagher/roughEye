@@ -21,6 +21,26 @@
 
 %%
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
+% CROP DATA BEFORE USING ILASTIK
+%
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+% filepath = uigetdir('','Select directory containing data');
+% filepath = strcat(filepath,'/');
+
+filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/males/';
+
+[cropInfo] = initializeCropping(filepath,'/');
+[pre_crop_images] = loadDataCrop(filepath);
+
+
+%%
+%--------------------------------------------------------------------------
 % initialize experiment and read in data
 %--------------------------------------------------------------------------
 
