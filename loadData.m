@@ -128,8 +128,9 @@ for t = 3:length(Directory)
     end
 end
 
-% flip x and y to align with raw images
 ilastik_probabilities = permute(temp_prob,[2,1,3]);
+
+
 
 
 

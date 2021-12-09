@@ -1,6 +1,6 @@
 
 % crop factor
-crop_factor = 512;
+crop_factor = 100;
 
 % specify directories for input and output
 input_dir = dir('/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/cropped_images_768 copy/*tif');

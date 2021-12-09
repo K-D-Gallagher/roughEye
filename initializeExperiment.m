@@ -42,7 +42,7 @@ end
 % convert to string arrays
 filename = string(filename);
 genotype = string(genotype);
-genotype_full = string(genotype_full);
+% genotype_full = string(genotype_full);
 sex = string(sex);
 
 % make struct containing all the info we want

@@ -58,7 +58,7 @@ for i = 1:numberOfFrames
     %-----------------------------------------------------
     imshowpair(imcomplement(raw_images(:,:,:,i)),uint8(ilastik_probabilities(:,:,i)) * 255)
 	thisFrame = getframe(gca);
-	myMovie(i) = thisFrame;
+	myMovie(i) = imresize(thisFrame,[vidHeight,vidWidth]);
     
 end
 
