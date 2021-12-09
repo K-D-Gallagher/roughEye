@@ -30,11 +30,21 @@
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-filepath = uigetdir('','Select directory containing data');
-filepath = strcat(filepath,'/');
+% filepath = uigetdir('','Select directory containing data');
+% filepath = strcat(filepath,'/');
+filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/males/';
 
-[pre_crop_images] = loadDataCrop(filepath)
+% load images you want to crop and store some info about them
+[cropInfo] = initializeCropping(filepath,'/');
+[pre_crop_images] = loadDataCrop(filepath);
 
+%--------------------
+% launch cropTool GUI
+%--------------------
+
+% NOTE: you must click the 'Save to File' butto
+
+cropTool
 
 %%
 %--------------------------------------------------------------------------

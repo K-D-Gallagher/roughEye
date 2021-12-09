@@ -32,16 +32,33 @@
 
 % filepath = uigetdir('','Select directory containing data');
 % filepath = strcat(filepath,'/');
-
 filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/males/';
 
+
+% This will create a new folder called 'cropped/' within the same
+% subdirectory as the folder containing your images
 [cropInfo] = initializeCropping(filepath,'/');
 [pre_crop_images] = loadDataCrop(filepath);
 
+%--------------------
+% launch cropTool GUI
+%--------------------
+
+% NOTE: Once you've finished cropping images, click the 'Save to File'
+% button to save your cropped files
+
+cropTool
 
 %%
+
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
 % initialize experiment and read in data
+%
+%
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
 % NOTE: the ilastik files (.h5 extension) should remain in the same folder
