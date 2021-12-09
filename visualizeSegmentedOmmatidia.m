@@ -66,7 +66,12 @@ for i = 1:numberOfFrames
     end
     
 	thisFrame = getframe(gca);
-	myMovie(i) = imresize(thisFrame,[vidHeight,vidWidth]);
+	tempFrame = uint8(zeros(vidHeight,vidWidth,3));
+    tempFrame(:,:,1) = imresize(thisFrame.cdata(:,:,1),[vidHeight,vidWidth]);
+    tempFrame(:,:,2) = imresize(thisFrame.cdata(:,:,2),[vidHeight,vidWidth]);
+    tempFrame(:,:,3) = imresize(thisFrame.cdata(:,:,3),[vidHeight,vidWidth]);
+    thisFrame.cdata = tempFrame;
+	myMovie(i) = thisFrame;
     hold off
     
 end
