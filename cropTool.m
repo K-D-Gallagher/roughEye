@@ -235,6 +235,9 @@ for j = 1:num_images
     fullname = fullfile(handles.meta_info.filepath_out,handles.meta_info.filenames{j});
     imwrite(handles.cropped_images(:,:,:,j),fullname)
 end
+crop_coord = handles.crop_coord;
+save(strcat(handles.meta_info.filepath_out,'crop_coord.mat'),'crop_coord')
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
