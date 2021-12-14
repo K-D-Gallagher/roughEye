@@ -22,7 +22,7 @@ function varargout = ommatidiaSeg(varargin)
 
 % Edit the above text to modify the response to help ommatidiaSeg
 
-% Last Modified by GUIDE v2.5 08-Dec-2021 13:34:34
+% Last Modified by GUIDE v2.5 14-Dec-2021 13:36:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -123,6 +123,29 @@ handles.baseline_y_limit = [0.5,size(handles.raw_images,1)+0.5];
 handles.x_lim = handles.baseline_x_limit;
 handles.y_lim = handles.baseline_y_limit;
 
+% populate popupmenu marker_type options
+strings = {'*', '+', '.', 'o'};
+set(handles.marker_type, 'String', strings);
+handles.marker_type_options = ['*', '+', '.', 'o'];
+handles.marker_type_choice = handles.marker_type_options(1);
+
+% populate popupmenu marker_color options
+strings = {'cyan', 'blue', 'green', 'magenta', 'yellow', 'black', 'white', 'red'};
+set(handles.marker_color, 'String', strings);
+handles.marker_color_options = ['cyan', 'blue', 'green', 'magenta', 'yellow', 'black', 'white', 'red'];
+handles.marker_color_choice = handles.marker_color_options(1);
+
+% populate popupmenu marker_size options
+strings = {'2', '4', '6', '8', '10', '12', '14'};
+set(handles.marker_size, 'String', strings);
+handles.marker_size_options = [2 4 6 8 10 12 14];
+handles.marker_size_choice = handles.marker_size_options(3);
+
+% populate popupmenu line_width options
+strings = {'1', '2', '3', '4'};
+set(handles.line_width, 'String', strings);
+handles.line_width_options = [1 2 3 4];
+handles.line_width_choice = handles.line_width_options(1);
 
 % Update handles structure
 update_arrows(handles)
@@ -194,13 +217,13 @@ handles.backup_omma_cent_disp = handles.omma_cent_disp;
 time = str2num(handles.current_image.String);
 
 %imageHandle = imshow(handles.L(:,:,handles.currentImage),'Parent',handles.axes1);
-[y, x, ~] = impixel;
+[temp_y, temp_x, ~] = impixel;
 
 % make sure we're only adding a single ommatidia
-if length(x) == 1
+for j = 1:length(temp_x)
     
-    x = round(x);
-    y  = round(y);
+    x = round(temp_x(j));
+    y  = round(temp_y(j));
     
     % pull out current binary image of centroid positions
     curr_omma_disp = handles.omma_cent_disp(:,:,time);
@@ -514,6 +537,76 @@ guidata(hObject, handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Ommatidia marker choices
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% --- Executes on selection change in marker_size.
+function marker_size_Callback(hObject, eventdata, handles)
+% hObject    handle to marker_size (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns marker_size contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from marker_size
+
+handles.marker_size_choice = handles.marker_size_options(get(handles.marker_size, 'Value'));
+
+stack_display_update(hObject, eventdata, handles)
+guidata(hObject, handles);
+
+
+% --- Executes on selection change in marker_type.
+function marker_type_Callback(hObject, eventdata, handles)
+% hObject    handle to marker_type (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns marker_type contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from marker_type
+
+handles.marker_type_choice = handles.marker_type_options(get(handles.marker_type, 'Value'));
+
+stack_display_update(hObject, eventdata, handles)
+guidata(hObject, handles);
+
+% --- Executes on selection change in marker_color.
+function marker_color_Callback(hObject, eventdata, handles)
+% hObject    handle to marker_color (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns marker_color contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from marker_color
+
+handles.marker_color_choice = handles.marker_color_options(get(handles.marker_color, 'Value'));
+
+stack_display_update(hObject, eventdata, handles)
+guidata(hObject, handles);
+
+
+% --- Executes on selection change in line_width.
+function line_width_Callback(hObject, eventdata, handles)
+% hObject    handle to line_width (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns line_width contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from line_width
+
+handles.line_width_choice = handles.line_width_options(get(handles.line_width, 'Value'));
+
+stack_display_update(hObject, eventdata, handles)
+guidata(hObject, handles);
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Display layers
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -540,7 +633,9 @@ if handles.toggle_ilastik.Value ...
     
     curr_omma = handles.omma_cent{cur};
     for ii = 1:length(curr_omma)
-        plot(curr_omma(ii,1),curr_omma(ii,2),'+b','Linewidth',2)
+        plot(curr_omma(ii,1),curr_omma(ii,2),handles.marker_type_choice, ...
+            'Color',handles.marker_color_choice, 'MarkerSize', handles.marker_size_choice, ...
+            'Linewidth',handles.line_width_choice)
     end
     
     xlim(handles.x_lim)
@@ -564,7 +659,9 @@ elseif not(handles.toggle_ilastik.Value) ...
     
     curr_omma = handles.omma_cent{cur};
     for ii = 1:length(curr_omma)
-        plot(curr_omma(ii,1),curr_omma(ii,2),'+b','Linewidth',2)
+        plot(curr_omma(ii,1),curr_omma(ii,2),handles.marker_type_choice, ...
+            'Color',handles.marker_color_choice, 'MarkerSize', handles.marker_size_choice, ...
+            'Linewidth',handles.line_width_choice)
     end
     
     xlim(handles.x_lim)
@@ -661,6 +758,13 @@ function figure1_WindowKeyPressFcn(hObject, eventdata, handles)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% --- Executes on button press in Debug.
+function Debug_Callback(hObject, eventdata, handles)
+% hObject    handle to Debug (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+keyboard
+
 % --- Executes during object creation, after setting all properties.
 function num_images_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to num_images (see GCBO)
@@ -673,10 +777,51 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-% --- Executes on button press in Debug.
-function Debug_Callback(hObject, eventdata, handles)
-% hObject    handle to Debug (see GCBO)
+% --- Executes during object creation, after setting all properties.
+function marker_type_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to marker_type (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-keyboard
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% --- Executes during object creation, after setting all properties.
+function marker_size_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to marker_size (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% --- Executes during object creation, after setting all properties.
+function marker_color_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to marker_color (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function line_width_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to line_width (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

@@ -102,6 +102,9 @@ set(handles.num_images,'String',handles.max);
 % read in metainfo
 handles.meta_info = evalin('base','cropInfo');
 
+% create handle to record FOV
+handles.crop_crop_coord = zeros(4,handles.max);
+
 % Update handles structure
 update_arrows(handles)
 guidata(hObject, handles)
@@ -188,6 +191,9 @@ minus = crop_value/2 - 1;
 % create cropped image,make grayscale, histEq
 crop_im = curr_im(yTemp-minus:yTemp+plus,xTemp-minus:xTemp+plus,:);
 
+% record crop coordinates
+handles.crop_coord(:,time) = [yTemp-minus,yTemp+plus,xTemp-minus,xTemp+plus];
+
 handles.cropped_images(:,:,:,time) = crop_im;
 
 guidata(hObject, handles)
@@ -212,6 +218,7 @@ function to_workspace_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 assignin('base','raw_images',handles.cropped_images);
+assignin('base','crop_coord',handles.crop_coord);
     
 guidata(hObject, handles)
 

@@ -1,4 +1,4 @@
-function visualizeTriangulation(expInfo,raw_images,omma_triangles,...
+function visualizeTriangulation(expInfo,genotype_code,raw_images,omma_triangles,...
     save_individual_images,save_movies)
 
 %--------------------------------------------------------------------------
@@ -41,24 +41,24 @@ set(gcf, 'renderer', 'zbuffer');
 disp('\n')
 disp("Rendering frame:  ")
 
-for i = 1:numberOfFrames
+for t = 1:numberOfFrames
     
     %----------------
     % display counter
     %----------------
-    if i > 1
-        for q=0:log10(i-1)
+    if t > 1
+        for q=0:log10(t-1)
           fprintf('\b'); % delete previous counter display
         end
-        fprintf('%d',i)
+        fprintf('%d',t)
     end
     
     %-----------------------------------------
     % visualize triangles on top of raw images
     %-----------------------------------------
-    imshow(raw_images(:,:,:,i))
+    imshow(raw_images(:,:,:,t))
     hold on
-    triplot(omma_triangles{i},'LineWidth',2,'Color','cyan')
+    triplot(omma_triangles{t},'LineWidth',2,'Color','cyan')
     hold off
     
 	thisFrame = getframe(gca);
@@ -67,7 +67,7 @@ for i = 1:numberOfFrames
     tempFrame(:,:,2) = imresize(thisFrame.cdata(:,:,2),[vidHeight,vidWidth]);
     tempFrame(:,:,3) = imresize(thisFrame.cdata(:,:,3),[vidHeight,vidWidth]);
     thisFrame.cdata = tempFrame;
-	myMovie(i) = thisFrame;
+	myMovie(t) = thisFrame;
     
 end
 
@@ -101,9 +101,8 @@ if save_individual_images
         new_frame = myMovie(j).cdata;
         
         % write genotype ontop of image
-        text_str = strcat(expInfo.genotypes_full(j), " ", expInfo.sex(j));
         position = [15 15];
-        new_frame = insertText(new_frame,position,text_str,'FontSize',30,...
+        new_frame = insertText(new_frame,position,char(expInfo.genotypes_full{j}),'FontSize',30,...
             'BoxColor','white','TextColor','black');
         
         %-------------
@@ -133,59 +132,65 @@ end
 %--------------------------------------------------------------------------
 
 % loop through list of genotypes to save
-for m = 1:length(save_movies)
+if save_movies
     
-    disp(strcat("Saving movie for ", save_movies(m), " genotype"))
-    
-    %-------------
-    % render movie
-    %-------------
-    
-    % pull out indices matching current target genotype
-    ind = find(expInfo.genotypes_code == save_movies(m));
-    
-    % make movie of this individual genotype
-    temp_movie = uint8(zeros(vidHeight,vidWidth,3,length(ind)));
-    
-    % loop through indices that contain target genotype
-    for z = 1:length(ind)
+    for m = 1:length(genotype_code)
         
-        j = ind(z);
+        if m == 1
+            disp('\n')
+        end
         
-        %-------------------------------
-        % assemble frame w/ text overlay
-        %-------------------------------
+        disp(strcat("Saving movie for ", genotype_code(m), " genotype"))
         
-        % assemble side-by-side image of raw + raw w/ ilastik probabilities
-        new_frame = myMovie(j).cdata;
+        %-------------
+        % render movie
+        %-------------
         
-        % write genotype ontop of image
-        text_str = strcat(expInfo.genotypes_full(j), " ", expInfo.sex(j));
-        position = [15 15];
-        new_frame = insertText(new_frame,position,text_str,'FontSize',30,...
-            'BoxColor','white','TextColor','black');
+        % pull out indices matching current target genotype
+        ind = find(expInfo.genotypes_code == genotype_code(m));
         
-        %--------------------
-        % store current frame
-        %--------------------
-        temp_movie(:,:,:,z) = new_frame;
+        % make movie of this individual genotype
+        temp_movie = uint8(zeros(vidHeight,vidWidth,3,length(ind)));
+        
+        % loop through indices that contain target genotype
+        for z = 1:length(ind)
+            
+            j = ind(z);
+            
+            %-------------------------------
+            % assemble frame w/ text overlay
+            %-------------------------------
+            
+            % assemble side-by-side image of raw + raw w/ ilastik probabilities
+            new_frame = myMovie(j).cdata;
+            
+            % write genotype ontop of image
+            position = [15 15];
+            new_frame = insertText(new_frame,position,char(expInfo.genotypes_full{j}),'FontSize',30,...
+                'BoxColor','white','TextColor','black');
+            
+            %--------------------
+            % store current frame
+            %--------------------
+            temp_movie(:,:,:,z) = new_frame;
+        end
+        
+        %-----------
+        % save movie
+        %-----------
+        
+        % use genotype for movie name
+        baseFileName = genotype_code(m);
+        
+        % assemble full file name
+        fullFileName = fullfile(masterpath_out, baseFileName);
+        
+        % record video
+        writerObj = VideoWriter(fullFileName,'MPEG-4');
+        writerObj.FrameRate = 1;
+        open(writerObj);
+        writeVideo(writerObj,temp_movie)
+        close(writerObj);
+        
     end
-    
-    %-----------
-    % save movie
-    %-----------
-    
-    % use genotype for movie name
-    baseFileName = save_movies(m);
-    
-    % assemble full file name
-    fullFileName = fullfile(masterpath_out, baseFileName);
-    
-	% record video
-	writerObj = VideoWriter(fullFileName,'MPEG-4');
-    writerObj.FrameRate = 1;
-	open(writerObj);
-    writeVideo(writerObj,temp_movie)
-    close(writerObj);
-    
 end

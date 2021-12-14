@@ -103,18 +103,10 @@ full_genotype = genotype_code;
 % Do you want to save each individual frame to file? (FOR ALL GENOTYPES)
 %----------------------------------------------------------------------
 save_individual_images = true;
-
-%----------------------------------------
-% Choose genotypes to save movies to file
-%----------------------------------------
-% NOTE: specify which ones you want via your genotype_code
-save_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
-
-% If you don't want to save any videos, leave string array blank:
-% save_movies = [];
+save_movies = true;
 
 % call function
-visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
+visualizeIlastikProbabilities(expInfo,genotype_code,raw_images,ilastik_probabilities, ...
     save_individual_images, save_movies)
 
 
@@ -158,7 +150,7 @@ visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
 % Load the GUI for hand-correcting segmentation. The GUI will allow you to
 % export the 'omma_centroids' variable
 
-adultOmmatidiaSeg
+ommatidiaSeg
 
 
 
@@ -203,17 +195,10 @@ marker_size = 14;
 line_width = 2;
 %--------------------------------------------------------------------------
 
-
-% Do you want to save each individual frame to file? (FOR ALL GENOTYPES)
 save_individual_images = true;
+save_movies = true;
 
-% Choose genotypes to save movies to file
-save_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
-
-% If you don't want to save any videos, leave string array blank:
-% save_movies = [];
-
-visualizeSegmentedOmmatidia(expInfo,raw_images,omma_centroids,...
+visualizeSegmentedOmmatidia(expInfo,genotype_code,raw_images,omma_centroids,...
     marker_type,mark_color,marker_size, line_width, ...
     save_individual_images,save_movies)
 
@@ -246,16 +231,11 @@ visualizeSegmentedOmmatidia(expInfo,raw_images,omma_centroids,...
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-% Do you want to save each individual frame to file?
+
 save_individual_images = true;
+save_movies = true;
 
-% Choose genotypes to save movies to file
-save_movies = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
-
-% If you don't want to save any videos, leave string array blank:
-% save_movies = [];
-
-visualizeTriangulation(expInfo,raw_images,omma_triangles,...
+visualizeTriangulation(expInfo,genotype_code,raw_images,omma_triangles,...
     save_individual_images,save_movies)
 
 

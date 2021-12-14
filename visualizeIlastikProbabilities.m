@@ -1,5 +1,7 @@
-function visualizeIlastikProbabilities(expInfo,raw_images,ilastik_probabilities, ...
+function visualizeIlastikProbabilities(expInfo,genotype_code,raw_images,ilastik_probabilities, ...
     save_individual_images, save_movies)
+
+clear j
 
 %--------------------------------------------------------------------------
 % make directory
@@ -89,6 +91,7 @@ if save_individual_images
     % loop through and save each frame
     for j = 1:numberOfFrames
         
+        
         %-------------------------------
         % assemble frame w/ text overlay
         %-------------------------------
@@ -99,9 +102,8 @@ if save_individual_images
         new_frame(:,vidWidth+1:end,:) = myMovie(j).cdata;
         
         % write genotype ontop of image
-        text_str = strcat(expInfo.genotypes_full(j), " ", expInfo.sex(j));
         position = [15 15];
-        new_frame = insertText(new_frame,position,text_str,'FontSize',30,...
+        new_frame = insertText(new_frame,position,char(expInfo.genotypes_full{j}),'FontSize',30,...
             'BoxColor','white','TextColor','black');
         
         %-------------
@@ -131,65 +133,71 @@ end
 %--------------------------------------------------------------------------
 
 % loop through list of genotypes to save
-for m = 1:length(save_movies)
+if save_movies
     
-    disp(strcat("Saving movie for ", save_movies(m), " genotype"))
-    
-    %-------------
-    % render movie
-    %-------------
-    
-    % pull out indices matching current target genotype
-    ind = find(expInfo.genotypes_code == save_movies(m));
-    
-    % make movie of this individual genotype
-    temp_movie = uint8(zeros(vidHeight,vidWidth*2,3,length(ind)));
-    for z = 1:length(ind)
+    for m = 1:length(genotype_code)
         
-        j = ind(z);
+        if m == 1
+            disp('\n')
+        end
         
-        %-------------------------------
-        % assemble frame w/ text overlay
-        %-------------------------------
+        disp(strcat("Saving movie for ", genotype_code(m), " genotype"))
         
-        % assemble side-by-side image of raw + raw w/ ilastik probabilities
-        new_frame = uint8(zeros(vidHeight,vidWidth*2,3));
-        new_frame(:,1:vidWidth,:) = raw_images(:,:,:,j);
-        new_frame(:,vidWidth+1:end,:) = myMovie(j).cdata;
+        %-------------
+        % render movie
+        %-------------
         
-        % write genotype ontop of image
-        text_str = strcat(expInfo.genotypes_full(j), " ", expInfo.sex(j));
-        position = [15 15];
-        new_frame = insertText(new_frame,position,text_str,'FontSize',30,...
-            'BoxColor','white','TextColor','black');
+        % pull out indices matching current target genotype
+        ind = find(expInfo.genotypes_code == genotype_code(m));
         
-        %--------------------
-        % store current frame
-        %--------------------
-        temp_movie(:,:,:,z) = new_frame;
+        % make movie of this individual genotype
+        temp_movie = uint8(zeros(vidHeight,vidWidth*2,3,length(ind)));
+        for z = 1:length(ind)
+        
+            k = ind(z);
+            
+            %-------------------------------
+            % assemble frame w/ text overlay
+            %-------------------------------
+            
+            % assemble side-by-side image of raw + raw w/ ilastik probabilities
+            new_frame = uint8(zeros(vidHeight,vidWidth*2,3));
+            new_frame(:,1:vidWidth,:) = raw_images(:,:,:,k);
+            new_frame(:,vidWidth+1:end,:) = myMovie(k).cdata;
+            
+            % write genotype ontop of image
+            position = [15 15];
+            new_frame = insertText(new_frame,position,char(expInfo.genotypes_full{k}),'FontSize',30,...
+                'BoxColor','white','TextColor','black');
+            
+            %--------------------
+            % store current frame
+            %--------------------
+            temp_movie(:,:,:,z) = new_frame;
+            
+        end
+        
+        %-----------
+        % save movie
+        %-----------
+        
+        % folder
+        filepath_out = strcat(expInfo.filepath_output,'/IlastikClassification/');
+        
+        % use genotype for movie name
+        baseFileName = genotype_code(m);
+        
+        % assemble full file name
+        fullFileName = fullfile(filepath_out, baseFileName);
+        
+        % record video
+        writerObj = VideoWriter(fullFileName,'MPEG-4');
+        writerObj.FrameRate = 1;
+        open(writerObj);
+        writeVideo(writerObj,temp_movie)
+        close(writerObj);
         
     end
-    
-    %-----------
-    % save movie
-    %-----------
-    
-    % folder
-    filepath_out = strcat(expInfo.filepath_output,'/IlastikClassification/');
-    
-    % use genotype for movie name
-    baseFileName = save_movies(m);
-    
-    % assemble full file name
-    fullFileName = fullfile(filepath_out, baseFileName);
-    
-	% record video
-	writerObj = VideoWriter(fullFileName,'MPEG-4');
-    writerObj.FrameRate = 1;
-	open(writerObj);
-    writeVideo(writerObj,temp_movie)
-    close(writerObj);
-    
 end
 
 
