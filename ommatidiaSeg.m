@@ -371,9 +371,11 @@ function save_to_file_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-omma_centroids = handles.omma_cent;
+% omma_centroids = handles.omma_cent;
+% save('backup_omma_centroids.mat','omma_centroids');
 
-save('backup_omma_centroids.mat','omma_centroids');
+assignin('base','omma_centroids',handles.omma_cent);
+evalin('base', 'save(strcat(expInfo.filepath_output,experimentID,''_workspace '',''.mat ''))');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

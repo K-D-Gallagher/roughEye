@@ -1,5 +1,5 @@
 function [] = ...
-    covPerGeno(filepath,genotypes,clean_omma_centroids,delaunay_neighbors,...
+    covPerGeno(expInfo,genotypes,clean_omma_centroids,delaunay_neighbors,...
     target_genotypes,plot_style,ascending_mean,genotype_labels,...
     x_axis_text_angle, plot_title, title_size, ...
     x_label, y_label, axes_label_size)
@@ -136,7 +136,7 @@ end
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-Directory = dir(strcat(filepath,'*.tif'));
+Directory = dir(strcat(expInfo.filepath_input,'*.tif'));
 
 %--------------------------------------------------------------------------
 % create vectors and cell arrays that record filename, genotype, and
@@ -147,13 +147,13 @@ genotype = cell(num_meas,1);
 for t = 1:num_meas
     
     % parse out filename
-    namestr{t} = Directory(t).name;
-    namestr{t} = namestr{t}(1:end-4);
-    namestr{t} = strrep(namestr{t},'_',' ');
+    namestr{t} = Directory(t).name;             
+    namestr{t} = namestr{t}(1:end-4);           % trim off .tif 
+    namestr{t} = strrep(namestr{t},'_',' ');    % remove any '_' characters
     
     % parse out the genotype specifically
     genotype{t} = strsplit(namestr{t});
-    genotype{t} = genotype{t}{2};
+    genotype{t} = genotype{t}{1};
     
 end
 
@@ -196,7 +196,7 @@ end
 % to ascending mean COV
 temp_mean_COV = [];
 for t = 1:length(genotypes)
-    temp_mean_COV(t) = nanmean(aggregate_interR8_COV{t});
+    temp_mean_COV(t) = mean(aggregate_interR8_COV{t},'omitnan');
 end
 
 %--------------------------------------------------------------------------
@@ -229,8 +229,8 @@ sorted_genotypes = string(sorted_genotypes);
 sorted_mean_COV = [];
 sorted_std_COV = [];
 for t = 1:length(genotypes)
-    sorted_mean_COV(t) = nanmean(sorted_aggregate_interR8_COV{t});
-    sorted_std_COV(t) = nanstd(sorted_aggregate_interR8_COV{t});
+    sorted_mean_COV(t) = mean(sorted_aggregate_interR8_COV{t},'omitnan');
+    sorted_std_COV(t) = std(sorted_aggregate_interR8_COV{t},'omitnan');
 end
 
 %---------
@@ -240,8 +240,8 @@ end
 mean_COV = [];
 std_COV = [];
 for t = 1:length(genotypes)
-    mean_COV(t) = nanmean(aggregate_interR8_COV{t});
-    std_COV(t) = nanstd(aggregate_interR8_COV{t});
+    mean_COV(t) = mean(aggregate_interR8_COV{t},'omitnan');
+    std_COV(t) = std(aggregate_interR8_COV{t},'omitnan');
 end
 
 %--------------------------------------------------------------------------
@@ -451,7 +451,6 @@ end
 %--------------------------------------------------------------------------
 % violin plot
 %--------------------------------------------------------------------------
-
 if any(strcmp(plot_style,'violin plot'))
     
     if ascending_mean

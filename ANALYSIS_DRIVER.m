@@ -20,6 +20,25 @@
 
 
 %%
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
+% VERSION REQUIREMENTS
+%
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+% MATLAB Version 2018b
+% Image Processing Toolbox
+% Signal Processing Toolbox
+% Statistics and Machine Learning Toolbox
+
+
+
+%%
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 %
@@ -74,7 +93,7 @@ filepath = uigetdir('','Select directory containing data');
 filepath = strcat(filepath,'/');
 % filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/cropped_images_768/';
 
-experimentID = '21.12.03 test'; % NO UNDERSCORES (_) please
+experimentID = '21.12.15 test'; % NO UNDERSCORES (_) please
 
 
 %--------------------------------------------------------------------------
@@ -90,8 +109,8 @@ experimentID = '21.12.03 test'; % NO UNDERSCORES (_) please
 % new data
 %---------
 % genotype_code = ["Q5" "Q9" "Q11" "Q12" "Q13" "Q14"];
-genotype_code = ["Q23" "Q24" "Q29" "Q33" "Q34" "Q39"];
-% genotype_code = ["Q46" "Q47" "Q50" "Q51" "Q52" "Q53"];
+% genotype_code = ["Q23" "Q24" "Q29" "Q33" "Q34" "Q39"];
+genotype_code = ["Q46" "Q47" "Q50" "Q51" "Q52" "Q53"];
 
 %----------
 % OPTIONAL: write out full genotypes OR just make full_genotype == genotype_code
@@ -205,15 +224,17 @@ save(strcat(expInfo.filepath_output,experimentID,'_workspace','.mat'))
 %--------------------------------------------------------------------------
 %
 %
-% IF MATLAB CRASHES WHILE USING GUI:
-% reload omma_centroids from backup file
+% IF MATLAB CRASHES WHILE USING GUI: reload workspace
+%
+% NOTE: the matlab workspace file was saved into the project directory
+% located in the folder containing your input images
 %
 %
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-
-load('backup_omma_centroids.mat')
+[file,path] = uigetfile;
+load(fullfile(path,file),'-mat')
 
 
 
@@ -359,13 +380,12 @@ visualizeOmmaNeighbors(raw_images,clean_omma_centroids,...
 %-------------------------
 % WHICH GENOTYPES TO PLOT?
 %-------------------------
-target_genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
-% target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
+target_genotypes = genotype_code;
 
 %-------------
 % PLOT OPTIONS
 %-------------
-plot_style = "voilin plot";         % alt options: "mean & std", "box plot", "violin plot"
+plot_style = "violin plot";         % alt options: "mean & std", "box plot", "violin plot"
 ascending_mean = true;              % do you want to sort genotypes by ascending mean?
 genotype_labels = genotype_code;    % x-axis genotype labels - do you want to use the short hand code or full genotype?
 x_axis_text_angle = 0;              % choose angle of x-axis text (rotate so they don't overlap)
@@ -375,7 +395,7 @@ x_label = "Genotypes";
 y_label = "Coefficient of Variation (COV)";
 axes_label_size = 16;
 
-covPerGeno(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
+covPerGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
     target_genotypes, plot_style,ascending_mean,genotype_labels, ...
     x_axis_text_angle, plot_title, title_size, ...
     x_label, y_label, axes_label_size)
@@ -401,8 +421,7 @@ covPerGeno(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
 %-------------------------
 % WHICH GENOTYPES TO PLOT?
 %-------------------------
-% target_genotypes = ["mir7" "q5" "q9" "q11" "q12" "q13" "q14"];
-target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
+target_genotypes = genotype_code;
 
 %-------------
 % PLOT OPTIONS
@@ -417,7 +436,7 @@ x_label = "Genotypes";
 y_label = "Coefficient of Variation (COV)";
 axes_label_size = 16;
 
-covPerImage(filepath,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
+covPerImage(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
     target_genotypes, plot_style,ascending_mean,genotype_labels, ...
     x_axis_text_angle, plot_title, title_size, ...
     x_label, y_label, axes_label_size)

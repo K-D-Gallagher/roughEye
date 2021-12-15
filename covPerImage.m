@@ -1,5 +1,5 @@
 function [] = ...
-    covPerImage(filepath,genotypes,clean_omma_centroids,delaunay_neighbors, ...
+    covPerImage(expInfo,genotypes,clean_omma_centroids,delaunay_neighbors, ...
     target_genotypes,plot_style,ascending_mean,genotype_labels,...
     x_axis_text_angle, plot_title, title_size, ...
     x_label, y_label, axes_label_size)
@@ -185,7 +185,7 @@ end
 %--------------------------------------------------------------------------
 
 
-Directory = dir(strcat(filepath,'*.tif'));
+Directory = dir(strcat(expInfo.filepath_input,'*.tif'));
 
 %--------------------------------------------------------------------------
 % create vectors and cell arrays that record filename, genotype, and
@@ -202,9 +202,10 @@ for t = 1:num_meas
     
     % parse out the genotype specifically
     genotype{t} = strsplit(namestr{t});
-    genotype{t} = genotype{t}{2};
+    genotype{t} = genotype{t}{1};
     
 end
+
 
 
 %--------------------------------------------------------------------------
@@ -234,7 +235,6 @@ for j = 1:length(genotypes)
 end
 
 
-
 %--------------------------------------------------------------------------
 % sort distributions of distance COV according to mean COV levels
 %--------------------------------------------------------------------------
@@ -253,8 +253,6 @@ for k = 1:length(genotypes)
     sorted_ave_COV_per_geno(k) = ave_COV_per_geno(j);
     sorted_std_COV_per_geno(k) = std_COV_per_geno(j);
 end
-
-
 
 
 %--------------------------------------------------------------------------
@@ -437,7 +435,7 @@ end
 %--------------------------------------------------------------------------
 % violin plot
 %--------------------------------------------------------------------------
-
+alt_sorted_COV_per_geno
 if any(strcmp(plot_style,'violin plot'))
     
     if ascending_mean
