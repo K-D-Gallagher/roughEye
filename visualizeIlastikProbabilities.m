@@ -58,7 +58,7 @@ for i = 1:numberOfFrames
     %-----------------------------------------------------
     % show overlaid probabilities and raw image and record
     %-----------------------------------------------------
-    imshowpair(imcomplement(raw_images(:,:,:,i)),uint8(ilastik_probabilities(:,:,i)) * 255)
+    imshowpair(raw_images(:,:,:,i),uint8(ilastik_probabilities(:,:,i)) * 255,'ColorChannels','red-cyan')
 	thisFrame = getframe(gca);
     tempFrame = uint8(zeros(vidHeight,vidWidth,3));
     tempFrame(:,:,1) = imresize(thisFrame.cdata(:,:,1),[vidHeight,vidWidth]);

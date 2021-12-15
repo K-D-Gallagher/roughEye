@@ -239,6 +239,7 @@ for j = 1:length(temp_x)
     handles.omma_cent_disp(:,:,time) = curr_omma_disp;
     handles.omma_cent{time} = temp_centroid;
     
+    
 end
 
 guidata(hObject, handles)
@@ -330,10 +331,11 @@ ROI = handles.omma_cent_disp(:,:,t) .* bw;
 temp_centroid = [y, x];
 handles.omma_cent{t} = temp_centroid;
 
+
 % update omma display
 new_omma_disp = zeros(size(handles.omma_cent_disp(:,:,t)));
 for j = 1:length(x)
-    new_omma_disp(x(j),y(j)) = 0;
+    new_omma_disp(x(j),y(j)) = 1;
 end
 handles.omma_cent_disp(:,:,t) = new_omma_disp;
 
@@ -658,7 +660,7 @@ elseif not(handles.toggle_ilastik.Value) ...
     hold on
     
     curr_omma = handles.omma_cent{cur};
-    for ii = 1:length(curr_omma)
+    for ii = 1:size(curr_omma,1)
         plot(curr_omma(ii,1),curr_omma(ii,2),handles.marker_type_choice, ...
             'Color',handles.marker_color_choice, 'MarkerSize', handles.marker_size_choice, ...
             'Linewidth',handles.line_width_choice)
