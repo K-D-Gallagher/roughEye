@@ -95,7 +95,6 @@ genotype_code = ["Q23" "Q24" "Q29" "Q33" "Q34" "Q39"];
 
 %----------
 % OPTIONAL: write out full genotypes OR just make full_genotype == genotype_code
-%----------
 
 full_genotype = genotype_code;
 % full_genotype = ...
