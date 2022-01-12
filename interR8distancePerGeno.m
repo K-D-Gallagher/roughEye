@@ -1,5 +1,8 @@
 function [] = ...
-    interR8distancePerGeno(filepath,genotypes,clean_omma_centroids,delaunay_neighbors)
+    interR8distancePerGeno(expInfo,genotypes,clean_omma_centroids,delaunay_neighbors,...
+    target_genotypes,plot_style,ascending_mean,median_normalized,genotype_labels,...
+    x_axis_text_angle, plot_title, title_size, ...
+    x_label, y_label, axes_label_size, x_axis_lim)
 
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
@@ -18,6 +21,10 @@ function [] = ...
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
+
+disp('\n')
+disp("Measuring inter-ommatidial-distance and aggregating across images")
+disp("based on genotype. Sample:   ")
 
 num_meas = length(clean_omma_centroids);
 
@@ -39,7 +46,13 @@ interR8_links = {};
 % loop through images
 for t = 1:length(clean_omma_centroids)
     
-    t
+    % display counter
+    if t > 1
+        for j=0:log10(t-1)
+          fprintf('\b'); % delete previous counter display
+        end
+        fprintf('%d',t)
+    end
     
     % redefine centroid list as two separate lists, one for x and one for y
     x = clean_omma_centroids{t}(:,1);
@@ -123,16 +136,12 @@ end
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-Directory = dir(strcat(filepath,'*.tif'));
-
-% vector defining colors that correspond to each genotype
-genotype_color = lines(length(genotypes));
+Directory = dir(strcat(expInfo.filepath_input,'*.tif'));
 
 %--------------------------------------------------------------------------
 % create vectors and cell arrays that record filename, genotype, and
 % plotting color for each image
 %--------------------------------------------------------------------------
-plt_color_vect = zeros(num_meas,3);
 namestr = cell(num_meas,1);
 genotype = cell(num_meas,1);
 for t = 1:num_meas
@@ -144,11 +153,7 @@ for t = 1:num_meas
     
     % parse out the genotype specifically
     genotype{t} = strsplit(namestr{t});
-    genotype{t} = genotype{t}{2};
-    
-    % record genotype color in our matrix for coloring
-    [~,LOCB] = ismember(genotype{t},genotypes);
-    plt_color_vect(t,:) = genotype_color(LOCB,:);
+    genotype{t} = genotype{t}{1};
     
 end
 
@@ -180,10 +185,14 @@ end
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-% plot
+% make measurements and format for plotting
 
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+%--------------------------------------------------------------------------
+% 
 %--------------------------------------------------------------------------
 
 % find mean and std of each genotype
@@ -194,7 +203,7 @@ end
 
 % sort by mean fano factor
 sort_order = zeros(length(genotypes),2);
-sort_order(:,1) = [1:7];
+sort_order(:,1) = 1:length(genotypes);
 sort_order(:,2) = temp_mean_distances;
 sort_order = sortrows(sort_order,2);
 
@@ -206,173 +215,511 @@ for t = 1:length(genotypes)
     sorted_aggregate_interR8_distances{t} = aggregate_interR8_distances{sort_ind};
 end
 
-% find mean and std of each genotype
-mean_dist = [];
-std_dist = [];
+% find mean and std of each genotype, plus max length of measurements
+sorted_mean_dist = [];
+sorted_std_dist = [];
+unsorted_mean_dist = [];
+unsorted_std_dist = [];
+max_length = 0;
 for t = 1:length(genotypes)
-    mean_dist(t) = mean(sorted_aggregate_interR8_distances{t});
-    std_dist(t) = std(sorted_aggregate_interR8_distances{t});
+    sorted_mean_dist(t) = mean(sorted_aggregate_interR8_distances{t});
+    sorted_std_dist(t) = std(sorted_aggregate_interR8_distances{t});
+    unsorted_mean_dist(t) = mean(aggregate_interR8_distances{t});
+    unsorted_std_dist(t) = std(aggregate_interR8_distances{t});
+    % find max length
+    curr_length = length(aggregate_interR8_distances{t});
+    if curr_length > max_length
+        max_length = curr_length;
+    end
 end
 
 % store in matrix
-dist_matrix_form = nan(12000,7);
-for t = 1:7
-    dist_matrix_form(1:length(sorted_aggregate_interR8_distances{t}),t) = sorted_aggregate_interR8_distances{t};
+sorted_interR8_dist_matrix_form = nan(max_length,length(genotypes));
+unsorted_interR8_dist_matrix_form = nan(max_length,length(genotypes));
+for t = 1:length(genotypes)
+    sorted_interR8_dist_matrix_form(1:length(sorted_aggregate_interR8_distances{t}),t) = sorted_aggregate_interR8_distances{t};
+    unsorted_interR8_dist_matrix_form(1:length(aggregate_interR8_distances{t}),t) = aggregate_interR8_distances{t};
 end
 
+
+%--------------------------------------------------------------------------
 % find MEDIAN normalized distributions
-normalized_interR8_distance_cellArray = {};
-for t = 1:7
+%--------------------------------------------------------------------------
+
+sorted_median_normalized_interR8_distance_cellArray = {};
+unsorted_median_normalized_interR8_distance_cellArray = {};
+for t = 1:length(genotypes)
     
-    temp_median = median(sorted_aggregate_interR8_distances{t});
-    normalized_interR8_distance_cellArray{t} = sorted_aggregate_interR8_distances{t} - temp_median;
+    sorted_temp_median = median(sorted_aggregate_interR8_distances{t});
+    unsorted_temp_median = median(aggregate_interR8_distances{t});
+    sorted_median_normalized_interR8_distance_cellArray{t} = sorted_aggregate_interR8_distances{t} - sorted_temp_median;
+    unsorted_median_normalized_interR8_distance_cellArray{t} = aggregate_interR8_distances{t} - unsorted_temp_median;
     
 end
 
 % store normalized distributions in matrix
-normalized_interR8_dist_matrix = nan(12000,7);
-for t = 1:7
-    normalized_interR8_dist_matrix(1:length(normalized_interR8_distance_cellArray{t}),t) = normalized_interR8_distance_cellArray{t};
-end
-
-% find mean and std of each genotype or normalized data
-norm_mean_dist = [];
-norm_std_dist = [];
+sorted_median_normalized_interR8_dist_matrix = nan(12000,length(genotypes));
+unsorted_median_normalized_interR8_dist_matrix = nan(12000,length(genotypes));
 for t = 1:length(genotypes)
-    norm_mean_dist(t) = mean(normalized_interR8_distance_cellArray{t});
-    norm_std_dist(t) = std(normalized_interR8_distance_cellArray{t});
+    sorted_median_normalized_interR8_dist_matrix(1:length(sorted_median_normalized_interR8_distance_cellArray{t}),t) = sorted_median_normalized_interR8_distance_cellArray{t};
+    unsorted_median_normalized_interR8_dist_matrix(1:length(unsorted_median_normalized_interR8_distance_cellArray{t}),t) = unsorted_median_normalized_interR8_distance_cellArray{t};
+
+end
+
+% find mean and std of each genotype of normalized data
+sorted_norm_mean_dist = [];
+sorted_norm_std_dist = [];
+unsorted_norm_mean_dist = [];
+unsorted_norm_std_dist = [];
+for t = 1:length(genotypes)
+    sorted_norm_mean_dist(t) = mean(sorted_median_normalized_interR8_distance_cellArray{t});
+    sorted_norm_std_dist(t) = std(sorted_median_normalized_interR8_distance_cellArray{t});
+    unsorted_norm_mean_dist(t) = mean(unsorted_median_normalized_interR8_distance_cellArray{t});
+    unsorted_norm_std_dist(t) = std(unsorted_median_normalized_interR8_distance_cellArray{t});
+end
+
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+% pull out target genotypes for plotting
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+%--------------------------------------------------------------------------
+% create new variables to house target genotype measurements
+%--------------------------------------------------------------------------
+
+target_sorted_mean_dist = [];
+target_sorted_std_dist = [];
+target_unsorted_mean_dist = [];
+target_unsorted_std_dist = [];
+
+target_sorted_norm_mean_dist = [];
+target_sorted_norm_std_dist = [];
+target_unsorted_norm_mean_dist = [];
+target_unsorted_norm_std_dist = [];
+
+target_sorted_interR8_dist_matrix_form = nan(size(sorted_interR8_dist_matrix_form,1),length(target_genotypes));
+target_unsorted_interR8_dist_matrix_form = nan(size(sorted_interR8_dist_matrix_form,1),length(target_genotypes));
+target_sorted_median_normalized_interR8_dist_matrix = nan(size(sorted_interR8_dist_matrix_form,1),length(target_genotypes));
+target_unsorted_median_normalized_interR8_dist_matrix = nan(size(sorted_interR8_dist_matrix_form,1),length(target_genotypes));
+
+target_sorted_aggregate_interR8_distances = {};
+target_aggregate_interR8_distances = {};
+target_sorted_median_normalized_interR8_distance_cellArray = {};
+target_unsorted_median_normalized_interR8_distance_cellArray = {};
+
+target_sorted_genotypes = {};
+
+%--------------------------------------------------------------------------
+% pull out measurements corresponding to target genotypes
+%--------------------------------------------------------------------------
+
+count1 = 0;
+count2 = 0;
+for j = 1:length(genotypes)
+    
+    % check if current genotype in 'sorted_genotypes' is part of our list
+    % of genotypes to plot
+    [LIA1,~] = ismember(genotypes(j),target_genotypes);
+    [LIA2,~] = ismember(sorted_genotypes(j),target_genotypes);
+    
+    if LIA1
+        
+        count1 = count1 + 1;
+
+        target_unsorted_mean_dist(count1) = unsorted_mean_dist(j);
+        target_unsorted_std_dist(count1) = unsorted_std_dist(j);
+
+        target_unsorted_norm_mean_dist(count1) = unsorted_norm_mean_dist(j);
+        target_unsorted_norm_std_dist(count1) = unsorted_norm_std_dist(j);
+   
+        target_unsorted_interR8_dist_matrix_form(:,count1) = unsorted_interR8_dist_matrix_form(:,j);
+        target_unsorted_median_normalized_interR8_dist_matrix(:,count1) = unsorted_median_normalized_interR8_dist_matrix(:,j);
+
+        target_aggregate_interR8_distances{count1} = aggregate_interR8_distances{j};
+        target_unsorted_median_normalized_interR8_distance_cellArray{count1} = unsorted_median_normalized_interR8_distance_cellArray{j};
+        
+    end
+        
+    if LIA2
+        
+        count2 = count2 + 1;
+        
+        target_sorted_mean_dist(count2) = sorted_mean_dist(j);
+        target_sorted_std_dist(count2) = sorted_std_dist(j);
+        
+        target_sorted_norm_mean_dist(count2) = sorted_norm_mean_dist(j);
+        target_sorted_norm_std_dist(count2) = sorted_norm_std_dist(j);
+        
+        target_sorted_interR8_dist_matrix_form(:,count2) = sorted_interR8_dist_matrix_form(:,j);
+        target_sorted_median_normalized_interR8_dist_matrix(:,count2) = sorted_median_normalized_interR8_dist_matrix(:,j);
+        
+        target_sorted_aggregate_interR8_distances{count2} = sorted_aggregate_interR8_distances{j};
+        target_sorted_median_normalized_interR8_distance_cellArray{count2} = sorted_median_normalized_interR8_distance_cellArray{j};
+        
+        target_sorted_genotypes{count2} = sorted_genotypes{j};
+        
+    end
+    
 end
 
 %--------------------------------------------------------------------------
-% plot inter-R8 distance
+%--------------------------------------------------------------------------
+%
+%
+% PLOT
+%
+%
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-figure(1)
+close all
 
-subplot(1,2,1)
+%--------------------------------------------------------------------------
+% mean + std
+%--------------------------------------------------------------------------
 
-er = errorbar(mean_dist,std_dist/2,'o','Linewidth',2);
-xticks([1 2 3 4 5 6 7])
-xticklabels(sorted_genotypes)
-xlim([0 8])
-er.Color = [0 0 0];                            
-er.LineStyle = 'none'; 
-ax = gca;
-ax.FontSize = 16; 
+if any(strcmp(plot_style,'mean & std'))
+    
+    % NON-MEDIAN NORMALIZED
+    if not(median_normalized)
+        
+        % PLOTTED IN ORDER OF ASCENDING MEAN
+        if ascending_mean
+            
+            er = errorbar(target_sorted_mean_dist,target_sorted_std_dist/2,'o','Linewidth',2);
+            xticks([1:length(target_genotypes)])
+            xticklabels(target_sorted_genotypes)
+            xlim([0 length(target_genotypes)+1])
+            er.Color = [0 0 0];                            
+            er.LineStyle = 'none'; 
+            ax = gca;
+            ax.FontSize = axes_label_size; 
 
-title(['raw inter-R8 distance'],'FontSize',16)
-xlabel(['genotype'],'FontSize',16)
-ylabel(['inter-R8-distance (pixels)'],'FontSize',16)
+            title(plot_title,'FontSize',title_size)
+            xlabel(x_label,'FontSize',axes_label_size)
+            ylabel(y_label,'FontSize',axes_label_size)
+            
+            xtickangle(x_axis_text_angle)
+        
+        % NON-MEDIAN NORMALIZED, PLOTTING IN UNALTERED ORDER
+        else
+            
+            er = errorbar(target_unsorted_mean_dist,target_unsorted_std_dist/2,'o','Linewidth',2);
+            xticks([1:length(target_genotypes)])
+            xticklabels(target_genotypes)
+            xlim([0 length(target_genotypes)+1])
+            er.Color = [0 0 0];                            
+            er.LineStyle = 'none'; 
+            ax = gca;
+            ax.FontSize = axes_label_size; 
 
-subplot(1,2,2)
+            title(plot_title,'FontSize',title_size)
+            xlabel(x_label,'FontSize',axes_label_size)
+            ylabel(y_label,'FontSize',axes_label_size)
+            
+            xtickangle(x_axis_text_angle)
+            
+        end
 
-er = errorbar(norm_mean_dist,norm_std_dist/2,'o','Linewidth',2);
-xticks([1 2 3 4 5 6 7])
-xticklabels(sorted_genotypes)
-xlim([0 8])
-er.Color = [0 0 0];                            
-er.LineStyle = 'none'; 
-ax = gca;
-ax.FontSize = 16; 
+    % MEDIAN NORMALIZED
+    else
+        
+        % PLOTTED IN ORDER OF ASCENDING MEAN
+        if ascending_mean
+            
+            er = errorbar(target_sorted_norm_mean_dist,target_sorted_norm_std_dist/2,'o','Linewidth',2);
+            xticks([1:length(target_genotypes)])
+            xticklabels(target_sorted_genotypes)
+            xlim([0 length(target_genotypes)+1])
+            er.Color = [0 0 0];                            
+            er.LineStyle = 'none'; 
+            ax = gca;
+            ax.FontSize = axes_label_size; 
 
-title(['MEDIAN NORMALIZED inter-R8 distance'],'FontSize',16)
-xlabel(['genotype'],'FontSize',16)
-ylabel(['normalized inter-R8-distance'],'FontSize',16)
+            title([strcat(plot_title, " (median normalized)")],'FontSize',title_size)
+            xlabel(x_label,'FontSize',axes_label_size)
+            ylabel(strcat(y_label," (median normalized)"),'FontSize',axes_label_size)
 
+            xtickangle(x_axis_text_angle)
+        
+        % MEDIAN NORMALIZED, PLOTTING IN UNALTERED ORDER
+        else
+            
+            er = errorbar(target_unsorted_norm_mean_dist,target_unsorted_norm_std_dist/2,'o','Linewidth',2);
+            xticks([1:length(target_genotypes)])
+            xticklabels(target_genotypes)
+            xlim([0 length(target_genotypes)+1])
+            er.Color = [0 0 0];                            
+            er.LineStyle = 'none'; 
+            ax = gca;
+            ax.FontSize = axes_label_size; 
+
+            title([strcat(plot_title, " (median normalized)")],'FontSize',title_size)
+            xlabel(x_label,'FontSize',axes_label_size)
+            ylabel(strcat(y_label," (median normalized)"),'FontSize',axes_label_size)
+
+            xtickangle(x_axis_text_angle)
+            
+        end
+        
+    end
+end
 
 %--------------------------------------------------------------------------
 % boxplot
 %--------------------------------------------------------------------------
 
+if any(strcmp(plot_style,'box plot'))
+    
+    % NON-MEDIAN NORMALIZED
+    if not(median_normalized)
+        
+        % PLOTTED IN ORDER OF ASCENDING MEAN
+        if ascending_mean
+            
+            boxplot(target_sorted_interR8_dist_matrix_form)
+            set(gca,'xticklabel',target_sorted_genotypes)
+            title(plot_title,'FontSize',title_size)
+            xlabel(x_label)
+            ylabel(y_label)
+            ax = gca;
+            ax.FontSize = axes_label_size;
 
-figure(2)
+            xtickangle(x_axis_text_angle)
+        
+        % NON-MEDIAN NORMALIZED, PLOTTED IN UNALTERED ORDER
+        else
+            
+            boxplot(target_unsorted_interR8_dist_matrix_form)
+            set(gca,'xticklabel',target_genotypes)
+            title(plot_title,'FontSize',title_size)
+            xlabel(x_label)
+            ylabel(y_label)
+            ax = gca;
+            ax.FontSize = axes_label_size;
 
-subplot(1,2,1)
+            xtickangle(x_axis_text_angle)
+            
+            
+        end
 
-boxplot(dist_matrix_form)
-set(gca,'xticklabel',sorted_genotypes)
-title('raw inter-R8-distance')
-xlabel(['genotype'])
-ylabel(['inter-R8-distances (pixels)'])
-ax = gca;
-ax.FontSize = 16;
+    % MEDIAN NORMALIZED
+    else
+        
+        % PLOTTED IN ORDER OF ASCENDING MEAN
+        if ascending_mean
+            
+            boxplot(target_sorted_median_normalized_interR8_dist_matrix)
+            set(gca,'xticklabel',target_sorted_genotypes)
+            title(strcat(plot_title, " (median normalized)"),'FontSize',title_size)
+            xlabel(x_label)
+            ylabel(strcat(y_label," (median normalized)"))
+            ax = gca;
+            ax.FontSize = axes_label_size;
 
-subplot(1,2,2)
+            xtickangle(x_axis_text_angle)
+        
+        % MEDIAN NORMALIZED, PLOTTED IN UNALTERED ORDER
+        else
+            
+            boxplot(target_unsorted_median_normalized_interR8_dist_matrix)
+            set(gca,'xticklabel',target_genotypes)
+            title(strcat(plot_title, " (median normalized)"),'FontSize',title_size)
+            xlabel(x_label)
+            ylabel(strcat(y_label," (median normalized)"))
+            ax = gca;
+            ax.FontSize = axes_label_size;
 
-boxplot(normalized_interR8_dist_matrix)
-set(gca,'xticklabel',sorted_genotypes)
-title('MEDIAN NORMALIZED inter-R8-distance')
-xlabel(['genotype'])
-ylabel(['normalized inter-R8-distances'])
-ax = gca;
-ax.FontSize = 16;
+            xtickangle(x_axis_text_angle)
+            
+            
+        end
+        
+    end
+end
 
 %--------------------------------------------------------------------------
 % violin plot
 %--------------------------------------------------------------------------
 
-figure(3)
+if any(strcmp(plot_style,'violin plot'))
+    
+    % NON-MEDIAN NORMALIZED
+    if not(median_normalized)
+        
+        % PLOTTED IN ORDER OF ASCENDING MEAN
+        if ascending_mean
+            
+            vs = violinplot(target_sorted_interR8_dist_matrix_form,target_sorted_genotypes,'ShowMean',true);
+            title(plot_title,'FontSize',title_size)
+            xlabel(x_label)
+            ylabel(y_label)
+            ax = gca;
+            ax.FontSize = axes_label_size;
 
-subplot(1,2,1)
+            xtickangle(x_axis_text_angle)
+        
+        % NON-MEDIAN NORMALIZED, PLOTTED IN UNALTERED ORDER
+        else
+            
+            vs = violinplot(target_unsorted_interR8_dist_matrix_form,target_genotypes,'ShowMean',true);
+            title(plot_title,'FontSize',title_size)
+            xlabel(x_label)
+            ylabel(y_label)
+            ax = gca;
+            ax.FontSize = axes_label_size;
 
-vs = violinplot(dist_matrix_form,sorted_genotypes,'ShowMean',true);
-title('raw inter-R8-distance')
-xlabel(['genotype'])
-ylabel(['inter-R8-distances (pixels)'])
-ax = gca;
-ax.FontSize = 16;
+            xtickangle(x_axis_text_angle)
+            
+        end
 
-subplot(1,2,2)
+    % MEDIAN NORMALIZED
+    else
+        
+        % PLOTTED IN ORDER OF ASCENDING MEAN
+        if ascending_mean
+            
+            vs = violinplot(target_sorted_median_normalized_interR8_dist_matrix,target_sorted_genotypes,'ShowMean',true);
+            title(strcat(plot_title, " (median normalized)"),'FontSize',title_size)
+            xlabel(x_label)
+            ylabel(strcat(y_label," (median normalized)"))
+            ax = gca;
+            ax.FontSize = axes_label_size;
 
-vs = violinplot(normalized_interR8_dist_matrix,sorted_genotypes,'ShowMean',true);
-title('MEDIAN NORMALIZED inter-R8-distance')
-xlabel(['genotype'])
-ylabel(['normalized inter-R8-distances'])
-ax = gca;
-ax.FontSize = 16;
+            xtickangle(x_axis_text_angle)
+            
+        % MEDIAN NORMALIZED, PLOTTED IN UNALTERED ORDER
+        else
+            
+            vs = violinplot(target_unsorted_median_normalized_interR8_dist_matrix,target_genotypes,'ShowMean',true);
+            title(strcat(plot_title, " (median normalized)"),'FontSize',title_size)
+            xlabel(x_label)
+            ylabel(strcat(y_label," (median normalized)"))
+            ax = gca;
+            ax.FontSize = axes_label_size;
+
+            xtickangle(x_axis_text_angle)
+        
+        end
+        
+    end
+end
 
 %--------------------------------------------------------------------------
 % ecdf
 %--------------------------------------------------------------------------
 
-figure(4)
-
-subplot(1,2,1)
-
-hold on
-
-for j = 1:7
+if any(strcmp(plot_style,'eCDF'))
     
-    [f,x] = ecdf(sorted_aggregate_interR8_distances{j});
-    plot(x,f,'Linewidth',2)
-    
+    % NON-MEDIAN NORMALIZED
+    if not(median_normalized)
+        
+        % PLOTTED IN ORDER OF ASCENDING MEAN
+        if ascending_mean
+            
+            hold on
+
+            for j = 1:length(target_genotypes)
+
+                [f,x] = ecdf(target_sorted_aggregate_interR8_distances{j});
+                plot(x,f,'Linewidth',2)
+
+            end
+
+            title(plot_title,'FontSize',title_size)
+            legend(target_sorted_genotypes,'Location','Southeast')
+            ylabel('F(x)')
+            xlabel(strcat("x = ",x_label))
+            ax = gca;
+            ax.FontSize = axes_label_size;
+            
+            xlim(x_axis_lim)
+            xtickangle(x_axis_text_angle)
+
+            hold off
+            
+        % NON-MEDIAN NORMALIZED, PLOTTED IN UNALTERED ORDER
+        else
+            
+            hold on
+
+            for j = 1:length(target_genotypes)
+
+                [f,x] = ecdf(target_aggregate_interR8_distances{j});
+                plot(x,f,'Linewidth',2)
+
+            end
+
+            title(plot_title,'FontSize',title_size)
+            legend(target_genotypes,'Location','Southeast')
+            ylabel('F(x)')
+            xlabel(strcat("x = ",x_label))
+            ax = gca;
+            ax.FontSize = axes_label_size;
+
+            xlim(x_axis_lim)
+            xtickangle(x_axis_text_angle)
+
+            hold off
+            
+        end
+
+    % MEDIAN NORMALIZED
+    else
+        
+        % PLOTTED IN ORDER OF ASCENDING MEAN
+        if ascending_mean
+            
+            hold on
+
+            for j = 1:length(target_genotypes)
+
+                [f,x] = ecdf(target_sorted_median_normalized_interR8_distance_cellArray{j});
+                plot(x,f,'Linewidth',2)
+
+            end
+
+            title(strcat(plot_title, " (median normalized)"),'FontSize',title_size)
+            legend(target_sorted_genotypes,'Location','Southeast')
+            ylabel('F(x)')
+            xlabel(strcat("x = ",y_label," (median normalized)"))
+            ax = gca;
+            ax.FontSize = axes_label_size;
+
+            xlim(x_axis_lim)
+            xtickangle(x_axis_text_angle)
+
+            hold off
+            
+        % MEDIAN NORMALIZED, PLOTTED IN UNALTERED ORDER
+        else
+            
+            hold on
+
+            for j = 1:length(target_genotypes)
+
+                [f,x] = ecdf(target_unsorted_median_normalized_interR8_distance_cellArray{j});
+                plot(x,f,'Linewidth',2)
+
+            end
+
+            title(strcat(plot_title, " (median normalized)"),'FontSize',title_size)
+            legend(target_genotypes,'Location','Southeast')
+            ylabel('F(x)')
+            xlabel(strcat("x = ",y_label," (median normalized)"))
+            ax = gca;
+            ax.FontSize = axes_label_size;
+
+            xlim(x_axis_lim)
+            xtickangle(x_axis_text_angle)
+
+            hold off
+        
+        end
+        
+    end
 end
-
-title('raw inter-R8-distance')
-legend(sorted_genotypes,'Location','Southeast')
-ylabel('F(x)')
-xlabel('x = inter-R8-distances (pixels)')
-ax = gca;
-ax.FontSize = 16;
-
-hold off
-
-subplot(1,2,2)
-
-hold on
-
-for j = 1:7
-    
-    [f,x] = ecdf(normalized_interR8_distance_cellArray{j});
-    plot(x,f,'Linewidth',2)
-    
-end
-
-title('MEDIAN NORMALIZED inter-R8-distance')
-legend(sorted_genotypes,'Location','Southeast')
-ylabel('F(x)')
-xlabel('x = MEDIAN NORMALIZED inter-R8-distances')
-ax = gca;
-ax.FontSize = 16;
-
-hold off

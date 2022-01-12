@@ -132,8 +132,8 @@ handles.marker_type_choice = handles.marker_type_options(1);
 % populate popupmenu marker_color options
 strings = {'cyan', 'blue', 'green', 'magenta', 'yellow', 'black', 'white', 'red'};
 set(handles.marker_color, 'String', strings);
-handles.marker_color_options = ['cyan', 'blue', 'green', 'magenta', 'yellow', 'black', 'white', 'red'];
-handles.marker_color_choice = handles.marker_color_options(1);
+handles.marker_color_options = {'cyan', 'blue', 'green', 'magenta', 'yellow', 'black', 'white', 'red'};
+handles.marker_color_choice = handles.marker_color_options{1};
 
 % populate popupmenu marker_size options
 strings = {'2', '4', '6', '8', '10', '12', '14'};
@@ -586,7 +586,7 @@ function marker_color_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns marker_color contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from marker_color
 
-handles.marker_color_choice = handles.marker_color_options(get(handles.marker_color, 'Value'));
+handles.marker_color_choice = handles.marker_color_options{get(handles.marker_color, 'Value')};
 
 stack_display_update(hObject, eventdata, handles)
 guidata(hObject, handles);

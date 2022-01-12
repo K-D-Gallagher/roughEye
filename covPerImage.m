@@ -207,14 +207,13 @@ for t = 1:num_meas
 end
 
 
-
 %--------------------------------------------------------------------------
 % create average COV for each genotype - distance based fano
 %--------------------------------------------------------------------------
 COV_per_geno = cell(length(genotypes),1);
 ave_COV_per_geno = zeros(length(genotypes),1);
 std_COV_per_geno = zeros(length(genotypes),1);
-all_COV_per_geno = nan(1000,length(genotypes));
+all_COV_per_geno = nan(num_meas,length(genotypes));
 sorted_COV_per_geno = all_COV_per_geno;
 
 for t = 1:num_meas
@@ -435,7 +434,6 @@ end
 %--------------------------------------------------------------------------
 % violin plot
 %--------------------------------------------------------------------------
-alt_sorted_COV_per_geno
 if any(strcmp(plot_style,'violin plot'))
     
     if ascending_mean

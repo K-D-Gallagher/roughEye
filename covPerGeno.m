@@ -248,11 +248,24 @@ end
 % transfer cells into matrix
 %--------------------------------------------------------------------------
 
+%--------------------------------
+% find max length of measurements
+%--------------------------------
+max_length = 0;
+for t = 1:length(genotypes)
+    % find max length
+    curr_length = length(aggregate_interR8_COV{t});
+    if curr_length > max_length
+        max_length = curr_length;
+    end
+end
+
+
 %---------------
 % sorted by mean
 %---------------
 
-sorted_COV_matrix_form = nan(12000,length(genotypes));
+sorted_COV_matrix_form = nan(max_length,length(genotypes));
 for t = 1:length(genotypes)
     sorted_COV_matrix_form(1:length(sorted_aggregate_interR8_COV{t}),t) = sorted_aggregate_interR8_COV{t};
 end
@@ -261,7 +274,7 @@ end
 % unsorted
 %---------
 
-COV_matrix_form = nan(12000,length(genotypes));
+COV_matrix_form = nan(max_length,length(genotypes));
 for t = 1:length(genotypes)
     COV_matrix_form(1:length(aggregate_interR8_COV{t}),t) = aggregate_interR8_COV{t};
 end
