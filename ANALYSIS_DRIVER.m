@@ -469,7 +469,7 @@ target_genotypes = genotype_code(3:end);
 %-------------
 % PLOT OPTIONS
 %-------------
-plot_style = "eCDF";                % alt options: "mean & std", "box plot", "violin plot", and "eCDF"
+plot_style = "violin plot";                % alt options: "mean & std", "box plot", "violin plot", and "eCDF"
 ascending_mean = true;              % do you want to sort genotypes by ascending mean?
 median_normalized = true;           % do you want to normalized the distributions based on the median?
 genotype_labels = genotype_code;    % x-axis genotype labels - do you want to use the short hand code or full genotype?
@@ -477,14 +477,52 @@ x_axis_text_angle = 0;              % choose angle of x-axis text (rotate so the
 plot_title = "Inter-R8-distances";
 title_size = 20;
 x_label = "Genotypes";
-y_label = "Inter-R8-distances (pixels)";
+y_label = "Inter-R8-distances (microns)";
 axes_label_size = 16;
 x_axis_lim = [-30 30];
+conversion_factor = 0.454;
 
 interR8distancePerGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
     target_genotypes,plot_style,ascending_mean,median_normalized,genotype_labels,...
     x_axis_text_angle, plot_title, title_size, ...
-    x_label, y_label, axes_label_size, x_axis_lim)
+    x_label, y_label, axes_label_size, x_axis_lim,...
+    conversion_factor)
 
+
+%%
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
+% use U-Mann-Whitley test to compare COV
+%
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+target_genotypes = ["q5" "q11"];
+
+MannWhitney_COV(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
+    target_genotypes)
+
+
+
+%%
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
+% use U-Mann-Whitley test to compare inter-R8-distances
+%
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+target_genotypes = ["q9" "q11"];
+
+MannWhitney_interR8(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
+    target_genotypes)
 
 

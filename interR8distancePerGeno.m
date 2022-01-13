@@ -2,7 +2,8 @@ function [] = ...
     interR8distancePerGeno(expInfo,genotypes,clean_omma_centroids,delaunay_neighbors,...
     target_genotypes,plot_style,ascending_mean,median_normalized,genotype_labels,...
     x_axis_text_angle, plot_title, title_size, ...
-    x_label, y_label, axes_label_size, x_axis_lim)
+    x_label, y_label, axes_label_size, x_axis_lim,...
+    conversion_factor)
 
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
@@ -111,6 +112,9 @@ for t = 1:length(clean_omma_centroids)
                 
                 % euclidean distance b/w two points
                 temp_D = sqrt( ((neigh_x - curr_x)^2) + ((neigh_y - curr_y)^2) );
+                
+                % convert to microns
+                temp_D = conversion_factor * temp_D;
                 
                 % store in list of distances for current center point
                 dist_count = dist_count + 1;
