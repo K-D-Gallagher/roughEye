@@ -2,7 +2,8 @@ function [] = ...
     covPerImage(expInfo,genotypes,clean_omma_centroids,delaunay_neighbors, ...
     target_genotypes,plot_style,ascending_mean,genotype_labels,...
     x_axis_text_angle, plot_title, title_size, ...
-    x_label, y_label, axes_label_size)
+    x_label, y_label, axes_label_size,...
+    save_csv_to_file)
 
 
 %--------------------------------------------------------------------------
@@ -251,6 +252,23 @@ for k = 1:length(genotypes)
     sorted_genotype_labels(k) = genotype_labels(j);     % for plotting
     sorted_ave_COV_per_geno(k) = ave_COV_per_geno(j);
     sorted_std_COV_per_geno(k) = std_COV_per_geno(j);
+end
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+% save to file if desired
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+if save_csv_to_file
+    
+    T1 = array2table(all_COV_per_geno,'VariableNames',...
+        cellstr(genotypes));
+    
+    writetable(T1,fullfile(expInfo.filepath_output,strcat('/','COVperImage.xls')),...
+        'WriteVariableNames',true);
+    
 end
 
 

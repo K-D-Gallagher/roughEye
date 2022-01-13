@@ -398,11 +398,12 @@ title_size = 20;
 x_label = "Genotypes";
 y_label = "Coefficient of Variation (COV)";
 axes_label_size = 16;
+save_csv_to_file = true;       % would you like to save a cvs document to file?
 
 covPerGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
     target_genotypes, plot_style,ascending_mean,genotype_labels, ...
     x_axis_text_angle, plot_title, title_size, ...
-    x_label, y_label, axes_label_size)
+    x_label, y_label, axes_label_size,save_csv_to_file)
 
 
 
@@ -439,11 +440,12 @@ title_size = 20;
 x_label = "Genotypes";
 y_label = "Coefficient of Variation (COV)";
 axes_label_size = 16;
+save_csv_to_file = true;       % would you like to save a cvs document to file?
 
 covPerImage(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
     target_genotypes, plot_style,ascending_mean,genotype_labels, ...
     x_axis_text_angle, plot_title, title_size, ...
-    x_label, y_label, axes_label_size)
+    x_label, y_label, axes_label_size,save_csv_to_file)
 
 
 
@@ -481,12 +483,13 @@ y_label = "Inter-R8-distances (microns)";
 axes_label_size = 16;
 x_axis_lim = [-30 30];
 conversion_factor = 0.454;
+save_csv_to_file = true;       % would you like to save a cvs document to file?
 
 interR8distancePerGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
     target_genotypes,plot_style,ascending_mean,median_normalized,genotype_labels,...
     x_axis_text_angle, plot_title, title_size, ...
     x_label, y_label, axes_label_size, x_axis_lim,...
-    conversion_factor)
+    conversion_factor,save_csv_to_file)
 
 
 %%

@@ -2,7 +2,8 @@ function [] = ...
     covPerGeno(expInfo,genotypes,clean_omma_centroids,delaunay_neighbors,...
     target_genotypes,plot_style,ascending_mean,genotype_labels,...
     x_axis_text_angle, plot_title, title_size, ...
-    x_label, y_label, axes_label_size)
+    x_label, y_label, axes_label_size,...
+    save_csv_to_file)
 
 
 %--------------------------------------------------------------------------
@@ -277,6 +278,24 @@ end
 COV_matrix_form = nan(max_length,length(genotypes));
 for t = 1:length(genotypes)
     COV_matrix_form(1:length(aggregate_interR8_COV{t}),t) = aggregate_interR8_COV{t};
+end
+
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+% save to file if desired
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+if save_csv_to_file
+    
+    T1 = array2table(COV_matrix_form,'VariableNames',...
+        cellstr(genotypes));
+    
+    writetable(T1,fullfile(expInfo.filepath_output,strcat('/','COVperGenotype.xls')),...
+        'WriteVariableNames',true);
+    
 end
 
 
