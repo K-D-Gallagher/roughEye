@@ -310,6 +310,35 @@ visualizeTriangulation(expInfo,genotype_code,raw_images,omma_triangles,...
     save_individual_images,save_movies)
 
 
+%% visualize triangle areas
+
+%     %-----------------------------
+%     % visualization triangle areas
+%     %-----------------------------
+%     
+%     % colormap of triangle area
+%     max_area = round(max(triangle_areas{t}));
+%     min_area = round(min(triangle_areas{t}));
+%     area_range = min_area:max_area;
+%     colormap = parula(length(min_area:max_area));
+%     colors = zeros(length(triangle_areas{t}),3);
+%     for q = 1:length(triangle_areas{t})
+%         [~,LOCB] = ismember(round(triangle_areas{t}(q)),area_range);
+%         colors(q,:) = colormap(LOCB,:);
+%     end
+%     
+%     imshow(raw_images(:,:,:,t))
+%     hold on
+%     triplot(edge_clean_triangulation{t},'LineWidth',2,'Color','cyan')
+%     patch('vertices', clean_omma_centroids{t},'Faces', edge_clean_delaunay{t}, ...
+%         'FaceColor','flat', 'FaceVertexCData', colors, 'CDataMapping', 'direct', ...
+%         'FaceAlpha', 1);
+%     hold off
+%     drawnow
+%     filename = ['/Users/kevin/Documents/MATLAB/forSha/media/triangle_areas/T=' num2str(t,'%03i') '.png'];
+%     print(gcf,'-dpng',filename)
+
+
 
 %%
 %--------------------------------------------------------------------------
@@ -332,34 +361,6 @@ save = false;
 
 visualizeOmmaNeighbors(raw_images,clean_omma_centroids,...
     omma_triangles,delaunay_neighbors,which_file,save)
-
-
-%%
-
-%--------------------------------------------------------------------------
-%--------------------------------------------------------------------------
-%
-%
-% COV heatmap
-%
-%
-%--------------------------------------------------------------------------
-%--------------------------------------------------------------------------
-
-save_individual_images = true;
-save_movies = true;
-
-%-----------------------------------------------------------
-% NOTE: choose only one (one must True and one must be false)
-% this specifies whether to scale the COV colormap according
-% to the current image or according to all images
-
-use_local_scaling = true;
-use_global_scaling = false;
-%-----------------------------------------------------------
-
-COVheatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
-    raw_images,save_individual_images,save_movies, use_local_scaling, use_global_scaling)
 
 
     
@@ -527,52 +528,4 @@ target_genotypes = ["q9" "q11"];
 MannWhitney_interR8(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
     target_genotypes)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-%%
-
-%% visualize triangle areas
-
-%     %-----------------------------
-%     % visualization triangle areas
-%     %-----------------------------
-%     
-%     % colormap of triangle area
-%     max_area = round(max(triangle_areas{t}));
-%     min_area = round(min(triangle_areas{t}));
-%     area_range = min_area:max_area;
-%     colormap = parula(length(min_area:max_area));
-%     colors = zeros(length(triangle_areas{t}),3);
-%     for q = 1:length(triangle_areas{t})
-%         [~,LOCB] = ismember(round(triangle_areas{t}(q)),area_range);
-%         colors(q,:) = colormap(LOCB,:);
-%     end
-%     
-%     imshow(raw_images(:,:,:,t))
-%     hold on
-%     triplot(edge_clean_triangulation{t},'LineWidth',2,'Color','cyan')
-%     patch('vertices', clean_omma_centroids{t},'Faces', edge_clean_delaunay{t}, ...
-%         'FaceColor','flat', 'FaceVertexCData', colors, 'CDataMapping', 'direct', ...
-%         'FaceAlpha', 1);
-%     hold off
-%     drawnow
-%     filename = ['/Users/kevin/Documents/MATLAB/forSha/media/triangle_areas/T=' num2str(t,'%03i') '.png'];
-%     print(gcf,'-dpng',filename)
 
