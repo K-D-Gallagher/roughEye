@@ -345,28 +345,28 @@ target_sorted_genotypes = {};
 
 count1 = 0;
 count2 = 0;
-for j = 1:length(genotypes)
+for j = 1:length(target_genotypes)
     
     % check if current genotype in 'sorted_genotypes' is part of our list
     % of genotypes to plot
-    [LIA1,~] = ismember(genotypes(j),target_genotypes);
-    [LIA2,~] = ismember(sorted_genotypes(j),target_genotypes);
+    [LIA1,LOCB1] = ismember(target_genotypes(j),genotypes);
+    [LIA2,LOCB2] = ismember(target_genotypes(j),sorted_genotypes);
     
     if LIA1
         
         count1 = count1 + 1;
 
-        target_unsorted_mean_dist(count1) = unsorted_mean_dist(j);
-        target_unsorted_std_dist(count1) = unsorted_std_dist(j);
+        target_unsorted_mean_dist(count1) = unsorted_mean_dist(LOCB1);
+        target_unsorted_std_dist(count1) = unsorted_std_dist(LOCB1);
 
-        target_unsorted_norm_mean_dist(count1) = unsorted_norm_mean_dist(j);
-        target_unsorted_norm_std_dist(count1) = unsorted_norm_std_dist(j);
+        target_unsorted_norm_mean_dist(count1) = unsorted_norm_mean_dist(LOCB1);
+        target_unsorted_norm_std_dist(count1) = unsorted_norm_std_dist(LOCB1);
    
-        target_unsorted_interR8_dist_matrix_form(:,count1) = unsorted_interR8_dist_matrix_form(:,j);
-        target_unsorted_median_normalized_interR8_dist_matrix(:,count1) = unsorted_median_normalized_interR8_dist_matrix(:,j);
+        target_unsorted_interR8_dist_matrix_form(:,count1) = unsorted_interR8_dist_matrix_form(:,LOCB1);
+        target_unsorted_median_normalized_interR8_dist_matrix(:,count1) = unsorted_median_normalized_interR8_dist_matrix(:,LOCB1);
 
-        target_aggregate_interR8_distances{count1} = aggregate_interR8_distances{j};
-        target_unsorted_median_normalized_interR8_distance_cellArray{count1} = unsorted_median_normalized_interR8_distance_cellArray{j};
+        target_aggregate_interR8_distances{count1} = aggregate_interR8_distances{LOCB1};
+        target_unsorted_median_normalized_interR8_distance_cellArray{count1} = unsorted_median_normalized_interR8_distance_cellArray{LOCB1};
         
     end
         
@@ -374,19 +374,19 @@ for j = 1:length(genotypes)
         
         count2 = count2 + 1;
         
-        target_sorted_mean_dist(count2) = sorted_mean_dist(j);
-        target_sorted_std_dist(count2) = sorted_std_dist(j);
+        target_sorted_mean_dist(count2) = sorted_mean_dist(LOCB2);
+        target_sorted_std_dist(count2) = sorted_std_dist(LOCB2);
         
-        target_sorted_norm_mean_dist(count2) = sorted_norm_mean_dist(j);
-        target_sorted_norm_std_dist(count2) = sorted_norm_std_dist(j);
+        target_sorted_norm_mean_dist(count2) = sorted_norm_mean_dist(LOCB2);
+        target_sorted_norm_std_dist(count2) = sorted_norm_std_dist(LOCB2);
         
-        target_sorted_interR8_dist_matrix_form(:,count2) = sorted_interR8_dist_matrix_form(:,j);
-        target_sorted_median_normalized_interR8_dist_matrix(:,count2) = sorted_median_normalized_interR8_dist_matrix(:,j);
+        target_sorted_interR8_dist_matrix_form(:,count2) = sorted_interR8_dist_matrix_form(:,LOCB2);
+        target_sorted_median_normalized_interR8_dist_matrix(:,count2) = sorted_median_normalized_interR8_dist_matrix(:,LOCB2);
         
-        target_sorted_aggregate_interR8_distances{count2} = sorted_aggregate_interR8_distances{j};
-        target_sorted_median_normalized_interR8_distance_cellArray{count2} = sorted_median_normalized_interR8_distance_cellArray{j};
+        target_sorted_aggregate_interR8_distances{count2} = sorted_aggregate_interR8_distances{LOCB2};
+        target_sorted_median_normalized_interR8_distance_cellArray{count2} = sorted_median_normalized_interR8_distance_cellArray{LOCB2};
         
-        target_sorted_genotypes{count2} = sorted_genotypes{j};
+        target_sorted_genotypes{count2} = sorted_genotypes{LOCB2};
         
     end
     

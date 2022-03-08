@@ -440,9 +440,9 @@ perGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-%-------------------------
-% WHICH GENOTYPES TO PLOT?
-%-------------------------
+%--------------------------------------------------------------------------
+% Which genotypes to plot and the order in which we want to plot them:
+%--------------------------------------------------------------------------
 target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
 target_genotypes = ["q14" "q13" "q12" "q11" "q9" "q5"];
 
@@ -493,13 +493,11 @@ perImage(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-%-------------------------
-% WHICH GENOTYPES TO PLOT?
-%-------------------------
-% target_genotypes = genotype_code;
-% target_genotypes = genotype_code(3:end);
+%--------------------------------------------------------------------------
+% Which genotypes to plot and the order in which we want to plot them:
+%--------------------------------------------------------------------------
 target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
-% target_genotypes = ["q14" "q12" "q11" "q5" "q13" "q9"];
+target_genotypes = ["q14" "q13" "q12" "q11" "q9" "q5"];
 
 %-------------
 % PLOT OPTIONS
@@ -515,7 +513,7 @@ x_label = "Genotypes";
 y_label = "Inter-R8-distances (microns)";
 axes_label_size = 16;
 x_axis_lim = [-30 30];
-y_axis_limit = [0 2];
+y_axis_limit = [-10 10];
 conversion_factor = 0.454;      % pixels to um
 save_csv_to_file = true;       % would you like to save a cvs document to file?
 

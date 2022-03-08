@@ -264,6 +264,7 @@ marker_type = 'o';         % alt options: o, +, *, x, ., etc
 mark_color = 'cyan';     % alt options: red, green, blue, cyan, magenta, yellow, black, white
 marker_size = 14;
 line_width = 2;
+distance_cutoff = 200;
 %--------------------------------------------------------------------------
 
 save_individual_images = true;
@@ -271,7 +272,8 @@ save_movies = true;
 
 visualizeSegmentedOmmatidia(expInfo,genotype_code,raw_images,omma_centroids,...
     marker_type,mark_color,marker_size, line_width, ...
-    save_individual_images,save_movies)
+    save_individual_images,save_movies,...
+    distance_cutoff)
 
 
 
@@ -380,10 +382,11 @@ COVheatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
 % aggregate COV measurements of ommatidia from multiple images according to
 % their genotype
 
-%-------------------------
-% WHICH GENOTYPES TO PLOT?
-%-------------------------
-target_genotypes = genotype_code;
+%--------------------------------------------------------------------------
+% Which genotypes to plot and the order in which we want to plot them:
+%--------------------------------------------------------------------------
+target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
+target_genotypes = ["q14" "q13" "q12" "q11" "q9" "q5"];
 
 %--------------------------------------------------------------------------
 % PLOT OPTIONS
@@ -417,7 +420,7 @@ perGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
     target_genotypes, plot_style,ascending_mean,genotype_labels, ...
     x_axis_text_angle, plot_title, title_size, ...
     x_label, y_label, axes_label_size,save_csv_to_file,y_axis_limit,...
-    measurement_type,distance_cutoff,raw_images)
+    measurement_type,distance_cutoff)
 
 
 
@@ -440,7 +443,8 @@ perGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
 %-------------------------
 % WHICH GENOTYPES TO PLOT?
 %-------------------------
-target_genotypes = genotype_code;
+target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
+target_genotypes = ["q14" "q13" "q12" "q11" "q9" "q5"];
 
 %--------------------------------------------------------------------------
 % PLOT OPTIONS
@@ -462,7 +466,7 @@ axes_label_size = 16;
 x_axis_text_angle = 0;              % choose angle of x-axis text (rotate so they don't overlap)
 y_axis_limit = [0 1];
 
-distance_cutoff = 50;       % threshold, in pixels, within which we'll include ommatidia for measurement
+distance_cutoff = 200;       % threshold, in pixels, within which we'll include ommatidia for measurement
 measurement_type = 'max_min';     % OPTIONS: COV, max_min
 
 save_csv_to_file = true;       % would you like to save a cvs document to file?
@@ -492,10 +496,8 @@ perImage(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
 %-------------------------
 % WHICH GENOTYPES TO PLOT?
 %-------------------------
-% target_genotypes = genotype_code;
-% target_genotypes = genotype_code(3:end);
 target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
-% target_genotypes = ["q14" "q12" "q11" "q5" "q13" "q9"];
+target_genotypes = ["q14" "q13" "q12" "q11" "q9" "q5"];
 
 %-------------
 % PLOT OPTIONS
@@ -511,7 +513,7 @@ x_label = "Genotypes";
 y_label = "Inter-R8-distances (microns)";
 axes_label_size = 16;
 x_axis_lim = [-30 30];
-y_axis_limit = [0 2];
+y_axis_limit = [-10 10];
 conversion_factor = 0.454;      % pixels to um
 save_csv_to_file = true;       % would you like to save a cvs document to file?
 
