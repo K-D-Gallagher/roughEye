@@ -371,16 +371,20 @@ COVheatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
 %--------------------------------------------------------------------------
 %
 %
-% COV per Genotype
+% ANALYSIS PER GENOTYPES - data points are ommatidia
+% i.e. measurements are made for individual ommatidia, which are then
+% pooled according to genotype
 %
-% Coefficient of Variation (COV) in inter-ommatidial-distance aggregated
-% according to genotype and then averaged
+% Two analysis options
 %
+% Option 1: 
+% Coefficient of Variation (COV) in inter-ommatidial-distance
+%
+% Option 2:
+% Min inter-ommatidial-distance / Max inter-ommatidial-distance
 %
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
-% aggregate COV measurements of ommatidia from multiple images according to
-% their genotype
 
 %--------------------------------------------------------------------------
 % Which genotypes to plot and the order in which we want to plot them:
@@ -430,11 +434,18 @@ perGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
 %--------------------------------------------------------------------------
 %
 %
-% COV per Image
+% ANALYSIS PER EYE - data points are images
+% i.e. measurements are first made for individual ommatidia, which are then
+% averaged per sample (per image); averages for each image are then pooled
+% according to genotype
 %
-% Average Coefficient of Variation (COV) in inter-ommatidial-distance
-% calculated for each image and then averaged across images according
-% to genotype
+% Two analysis options:
+%
+% Option 1: 
+% Coefficient of Variation (COV) in inter-ommatidial-distance
+%
+% Option 2:
+% Min inter-ommatidial-distance / Max inter-ommatidial-distance
 %
 %
 %--------------------------------------------------------------------------
