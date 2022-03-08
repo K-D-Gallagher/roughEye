@@ -1,6 +1,7 @@
 function visualizeSegmentedOmmatidia(expInfo,genotype_code,raw_images,omma_centroids,...
     marker_type, marker_color, marker_size, line_width, ...
-    save_individual_images, save_movies)
+    save_individual_images, save_movies,...
+    distance_cutoff)
 
 %--------------------------------------------------------------------------
 % make directory
@@ -42,6 +43,46 @@ set(gcf, 'renderer', 'zbuffer');
 disp('\n')
 disp("Rendering frame:  ")
 
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+% find ommatidia within distance cutoff
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+% pass to new variable that we will modify based on distance_cutoff
+omma_for_analysis = {};
+
+for t = 1:numberOfFrames
+    
+    omma_count = 0;
+    
+    % find the center of mass for the segmented ommatidia of the current
+    % image
+    center_x = sum(omma_centroids{t}(:,1))/length(omma_centroids{t}(:,1));
+    center_y = sum(omma_centroids{t}(:,2))/length(omma_centroids{t}(:,2));
+    
+    for j = 1:length(omma_centroids{t})
+        
+        term1 = (omma_centroids{t}(j,1) - center_x)^2;
+        term2 = (omma_centroids{t}(j,2) - center_y)^2;
+        dist = sqrt(term1 + term2);
+        
+        if dist < distance_cutoff
+            
+            omma_count = omma_count + 1;
+            omma_for_analysis{t}(omma_count) = j;
+            
+        end
+        
+    end
+    
+end
+
 for i = 1:numberOfFrames
     
     %----------------
@@ -60,9 +101,11 @@ for i = 1:numberOfFrames
     imshow(raw_images(:,:,:,i))
     hold on
     for ii = 1:length(omma_centroids{i})
-        plot(omma_centroids{i}(ii,1),omma_centroids{i}(ii,2),...
-            marker_type,'Color',marker_color,'MarkerSize',marker_size, ...
-            'LineWidth',line_width)
+        if ismember(ii,omma_for_analysis{i})
+            plot(omma_centroids{i}(ii,1),omma_centroids{i}(ii,2),...
+                marker_type,'Color',marker_color,'MarkerSize',marker_size, ...
+                'LineWidth',line_width)
+        end
     end
     
 	thisFrame = getframe(gca);

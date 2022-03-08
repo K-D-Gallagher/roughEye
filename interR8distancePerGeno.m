@@ -3,7 +3,7 @@ function [] = ...
     target_genotypes,plot_style,ascending_mean,median_normalized,genotype_labels,...
     x_axis_text_angle, plot_title, title_size, ...
     x_label, y_label, axes_label_size, x_axis_lim,...
-    conversion_factor,save_csv_to_file)
+    conversion_factor,save_csv_to_file,y_axis_limit)
 
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
@@ -430,6 +430,7 @@ if any(strcmp(plot_style,'mean & std'))
             ylabel(y_label,'FontSize',axes_label_size)
             
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
         
         % NON-MEDIAN NORMALIZED, PLOTTING IN UNALTERED ORDER
         else
@@ -448,6 +449,7 @@ if any(strcmp(plot_style,'mean & std'))
             ylabel(y_label,'FontSize',axes_label_size)
             
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
             
         end
 
@@ -471,6 +473,7 @@ if any(strcmp(plot_style,'mean & std'))
             ylabel(strcat(y_label," (median normalized)"),'FontSize',axes_label_size)
 
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
         
         % MEDIAN NORMALIZED, PLOTTING IN UNALTERED ORDER
         else
@@ -489,6 +492,7 @@ if any(strcmp(plot_style,'mean & std'))
             ylabel(strcat(y_label," (median normalized)"),'FontSize',axes_label_size)
 
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
             
         end
         
@@ -516,6 +520,7 @@ if any(strcmp(plot_style,'box plot'))
             ax.FontSize = axes_label_size;
 
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
         
         % NON-MEDIAN NORMALIZED, PLOTTED IN UNALTERED ORDER
         else
@@ -529,7 +534,7 @@ if any(strcmp(plot_style,'box plot'))
             ax.FontSize = axes_label_size;
 
             xtickangle(x_axis_text_angle)
-            
+            ylim(y_axis_limit)
             
         end
 
@@ -548,6 +553,7 @@ if any(strcmp(plot_style,'box plot'))
             ax.FontSize = axes_label_size;
 
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
         
         % MEDIAN NORMALIZED, PLOTTED IN UNALTERED ORDER
         else
@@ -561,7 +567,7 @@ if any(strcmp(plot_style,'box plot'))
             ax.FontSize = axes_label_size;
 
             xtickangle(x_axis_text_angle)
-            
+            ylim(y_axis_limit)
             
         end
         
@@ -588,6 +594,7 @@ if any(strcmp(plot_style,'violin plot'))
             ax.FontSize = axes_label_size;
 
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
         
         % NON-MEDIAN NORMALIZED, PLOTTED IN UNALTERED ORDER
         else
@@ -600,6 +607,7 @@ if any(strcmp(plot_style,'violin plot'))
             ax.FontSize = axes_label_size;
 
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
             
         end
 
@@ -617,6 +625,7 @@ if any(strcmp(plot_style,'violin plot'))
             ax.FontSize = axes_label_size;
 
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
             
         % MEDIAN NORMALIZED, PLOTTED IN UNALTERED ORDER
         else
@@ -629,6 +638,7 @@ if any(strcmp(plot_style,'violin plot'))
             ax.FontSize = axes_label_size;
 
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
         
         end
         
@@ -665,6 +675,7 @@ if any(strcmp(plot_style,'eCDF'))
             
             xlim(x_axis_lim)
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
 
             hold off
             
@@ -689,6 +700,7 @@ if any(strcmp(plot_style,'eCDF'))
 
             xlim(x_axis_lim)
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
 
             hold off
             
@@ -718,6 +730,7 @@ if any(strcmp(plot_style,'eCDF'))
 
             xlim(x_axis_lim)
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
 
             hold off
             
@@ -742,6 +755,7 @@ if any(strcmp(plot_style,'eCDF'))
 
             xlim(x_axis_lim)
             xtickangle(x_axis_text_angle)
+            ylim(y_axis_limit)
 
             hold off
         

@@ -1,6 +1,6 @@
 
 function COVheatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
-    raw_images,save_individual_images,save_movies, use_local_scaling,using_global_scaling)
+    raw_images,save_individual_images,save_movies, use_local_scaling,use_global_scaling)
 
 
 %--------------------------------------------------------------------------
@@ -204,8 +204,9 @@ for t = 1:size(raw_images,4)
     
 end
 
+
 % make heatmap of COV
-global_conversion_heatmap = round(linspace(glob_min,glob_max,100),2);
+global_conversion_heatmap = round(linspace(glob_min,glob_max,100),1);
 global_heatmap = parula(100);
 
 
@@ -222,7 +223,7 @@ for t = 1:length(clean_omma_centroids)
     
     
     % make heatmap of COV
-    local_conversion_heatmap = round(linspace(local_min(t),local_max(t),100),2);
+    local_conversion_heatmap = round(linspace(local_min(t),local_max(t),100),1);
     local_heatmap = parula(100);
     
     % loop through ommatidia - the identity of ommatidia is defined by their
@@ -240,15 +241,17 @@ for t = 1:length(clean_omma_centroids)
                 
                 if use_local_scaling
                     
-                    [~,LOCB] = ismember(round(curr_COV,2),local_conversion_heatmap);
+                    [~,LOCB] = ismember(round(curr_COV,1),local_conversion_heatmap);
                     
                     plot(x(j),y(j),'Marker','.','Color',local_heatmap(LOCB,:),'MarkerSize',40)
                     
                     %
                 elseif use_global_scaling
                     
-                    [~,LOCB] = ismember(round(curr_COV,2),global_conversion_heatmap);
-                    plot(x(j),y(j),'Marker','.','Color',global_heatmap(LOCB,:),'MarkerSize',40)
+                    [~,LOCB] = ismember(round(curr_COV,1,global_conversion_heatmap));
+                    if LOCB > 0
+                        plot(x(j),y(j),'Marker','.','Color',global_heatmap(LOCB,:),'MarkerSize',40)
+                    end
                     
                     
                 end
@@ -277,7 +280,7 @@ for t = 1:length(clean_omma_centroids)
     elseif use_global_scaling
         
         cmap = parula(11);
-        lbl =  {num2str(local_conversion_heatmap(1)),...
+        lbl =  {num2str(global_conversion_heatmap(1)),...
         num2str(global_conversion_heatmap(10)),num2str(global_conversion_heatmap(20)),...
         num2str(global_conversion_heatmap(30)),num2str(global_conversion_heatmap(40)),...
         num2str(global_conversion_heatmap(50)),num2str(global_conversion_heatmap(60)),...

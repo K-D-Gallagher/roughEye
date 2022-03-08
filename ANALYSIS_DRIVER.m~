@@ -91,7 +91,7 @@ cropTool
 
 % filepath = uigetdir('','Select directory containing data');
 % filepath = strcat(filepath,'/');
-filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/cropped_images_768/';
+filepath = '/Users/kevin/Documents/MATLAB/forSha/raw_and_cropped_images/males/';
 
 experimentID = '22.01.10 test'; % NO UNDERSCORES (_) please
 
@@ -310,35 +310,6 @@ visualizeTriangulation(expInfo,genotype_code,raw_images,omma_triangles,...
     save_individual_images,save_movies)
 
 
-%% visualize triangle areas
-
-%     %-----------------------------
-%     % visualization triangle areas
-%     %-----------------------------
-%     
-%     % colormap of triangle area
-%     max_area = round(max(triangle_areas{t}));
-%     min_area = round(min(triangle_areas{t}));
-%     area_range = min_area:max_area;
-%     colormap = parula(length(min_area:max_area));
-%     colors = zeros(length(triangle_areas{t}),3);
-%     for q = 1:length(triangle_areas{t})
-%         [~,LOCB] = ismember(round(triangle_areas{t}(q)),area_range);
-%         colors(q,:) = colormap(LOCB,:);
-%     end
-%     
-%     imshow(raw_images(:,:,:,t))
-%     hold on
-%     triplot(edge_clean_triangulation{t},'LineWidth',2,'Color','cyan')
-%     patch('vertices', clean_omma_centroids{t},'Faces', edge_clean_delaunay{t}, ...
-%         'FaceColor','flat', 'FaceVertexCData', colors, 'CDataMapping', 'direct', ...
-%         'FaceAlpha', 1);
-%     hold off
-%     drawnow
-%     filename = ['/Users/kevin/Documents/MATLAB/forSha/media/triangle_areas/T=' num2str(t,'%03i') '.png'];
-%     print(gcf,'-dpng',filename)
-
-
 
 %%
 %--------------------------------------------------------------------------
@@ -361,6 +332,34 @@ save = false;
 
 visualizeOmmaNeighbors(raw_images,clean_omma_centroids,...
     omma_triangles,delaunay_neighbors,which_file,save)
+
+
+%%
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
+% COV heatmap
+%
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+save_individual_images = true;
+save_movies = true;
+
+%-----------------------------------------------------------
+% NOTE: choose only one (one must True and one must be false)
+% this specifies whether to scale the COV colormap according
+% to the current image or according to all images
+
+use_local_scaling = true;
+use_global_scaling = false;
+%-----------------------------------------------------------
+
+COVheatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
+    raw_images,save_individual_images,save_movies, use_local_scaling, use_global_scaling)
 
 
     
@@ -386,24 +385,39 @@ visualizeOmmaNeighbors(raw_images,clean_omma_centroids,...
 %-------------------------
 target_genotypes = genotype_code;
 
-%-------------
+%--------------------------------------------------------------------------
 % PLOT OPTIONS
-%-------------
+%--------------------------------------------------------------------------
 plot_style = "violin plot";         % alt options: "mean & std", "box plot", "violin plot"
-ascending_mean = true;              % do you want to sort genotypes by ascending mean?
+ascending_mean = false;              % do you want to sort genotypes by ascending mean?
 genotype_labels = genotype_code;    % x-axis genotype labels - do you want to use the short hand code or full genotype?
-x_axis_text_angle = 0;              % choose angle of x-axis text (rotate so they don't overlap)
-plot_title = "Coefficient of Variation (COV) of inter-R8-distance";
-title_size = 20;
-x_label = "Genotypes";
-y_label = "Coefficient of Variation (COV)";
-axes_label_size = 16;
-save_csv_to_file = true;       % would you like to save a cvs document to file?
 
-covPerGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
+% plot_title = "Coefficient of Variation (COV) of inter-R8-distance";
+% x_label = "Genotypes";
+% y_label = "Coefficient of Variation (COV)";
+
+plot_title = "Min/max inter-R8-distance";
+x_label = "Genotypes";
+y_label = "Min/max inter-R8-distance";
+
+title_size = 20;
+axes_label_size = 16;
+x_axis_text_angle = 0;         % choose angle of x-axis text (rotate so they don't overlap)
+y_axis_limit = [0 1];
+
+distance_cutoff = 200;       % threshold, in pixels, within which we'll include ommatidia for measurement
+measurement_type = 'max_min';     % OPTIONS: COV, max_min
+
+save_csv_to_file = true;       % would you like to save a cvs document to file?
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+
+perGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
     target_genotypes, plot_style,ascending_mean,genotype_labels, ...
     x_axis_text_angle, plot_title, title_size, ...
-    x_label, y_label, axes_label_size,save_csv_to_file)
+    x_label, y_label, axes_label_size,save_csv_to_file,y_axis_limit,...
+    measurement_type,distance_cutoff,raw_images)
 
 
 
@@ -428,24 +442,37 @@ covPerGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
 %-------------------------
 target_genotypes = genotype_code;
 
-%-------------
+%--------------------------------------------------------------------------
 % PLOT OPTIONS
-%-------------
+%--------------------------------------------------------------------------
 plot_style = "violin plot";
-ascending_mean = true;              % do you want to sort genotypes by ascending mean?
+ascending_mean = false;              % do you want to sort genotypes by ascending mean?
 genotype_labels = genotype_code;    % x-axis genotype labels - do you want to use the short hand code or full genotype?
-x_axis_text_angle = 0;              % choose angle of x-axis text (rotate so they don't overlap)
-plot_title = "Coefficient of Variation (COV) of inter-R8-distance";
-title_size = 20;
-x_label = "Genotypes";
-y_label = "Coefficient of Variation (COV)";
-axes_label_size = 16;
-save_csv_to_file = true;       % would you like to save a cvs document to file?
 
-covPerImage(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
+% plot_title = "Coefficient of Variation (COV) of inter-R8-distance";
+% x_label = "Genotypes";
+% y_label = "Coefficient of Variation (COV)";
+
+plot_title = "Min/max inter-R8-distance";
+x_label = "Genotypes";
+y_label = "Min/max inter-R8-distance";
+
+title_size = 20;
+axes_label_size = 16;
+x_axis_text_angle = 0;              % choose angle of x-axis text (rotate so they don't overlap)
+y_axis_limit = [0 1];
+
+distance_cutoff = 50;       % threshold, in pixels, within which we'll include ommatidia for measurement
+measurement_type = 'max_min';     % OPTIONS: COV, max_min
+
+save_csv_to_file = true;       % would you like to save a cvs document to file?
+%--------------------------------------------------------------------------
+
+perImage(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
     target_genotypes, plot_style,ascending_mean,genotype_labels, ...
     x_axis_text_angle, plot_title, title_size, ...
-    x_label, y_label, axes_label_size,save_csv_to_file)
+    x_label, y_label, axes_label_size,save_csv_to_file,y_axis_limit,...
+    measurement_type,distance_cutoff)
 
 
 
@@ -465,8 +492,10 @@ covPerImage(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
 %-------------------------
 % WHICH GENOTYPES TO PLOT?
 %-------------------------
-target_genotypes = genotype_code;
-target_genotypes = genotype_code(3:end);
+% target_genotypes = genotype_code;
+% target_genotypes = genotype_code(3:end);
+target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
+% target_genotypes = ["q14" "q12" "q11" "q5" "q13" "q9"];
 
 %-------------
 % PLOT OPTIONS
@@ -482,14 +511,15 @@ x_label = "Genotypes";
 y_label = "Inter-R8-distances (microns)";
 axes_label_size = 16;
 x_axis_lim = [-30 30];
-conversion_factor = 0.454;
+y_axis_limit = [0 2];
+conversion_factor = 0.454;      % pixels to um
 save_csv_to_file = true;       % would you like to save a cvs document to file?
 
 interR8distancePerGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
     target_genotypes,plot_style,ascending_mean,median_normalized,genotype_labels,...
     x_axis_text_angle, plot_title, title_size, ...
     x_label, y_label, axes_label_size, x_axis_lim,...
-    conversion_factor,save_csv_to_file)
+    conversion_factor,save_csv_to_file,y_axis_limit)
 
 
 %%
@@ -528,4 +558,52 @@ target_genotypes = ["q9" "q11"];
 MannWhitney_interR8(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
     target_genotypes)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%
+
+%% visualize triangle areas
+
+%     %-----------------------------
+%     % visualization triangle areas
+%     %-----------------------------
+%     
+%     % colormap of triangle area
+%     max_area = round(max(triangle_areas{t}));
+%     min_area = round(min(triangle_areas{t}));
+%     area_range = min_area:max_area;
+%     colormap = parula(length(min_area:max_area));
+%     colors = zeros(length(triangle_areas{t}),3);
+%     for q = 1:length(triangle_areas{t})
+%         [~,LOCB] = ismember(round(triangle_areas{t}(q)),area_range);
+%         colors(q,:) = colormap(LOCB,:);
+%     end
+%     
+%     imshow(raw_images(:,:,:,t))
+%     hold on
+%     triplot(edge_clean_triangulation{t},'LineWidth',2,'Color','cyan')
+%     patch('vertices', clean_omma_centroids{t},'Faces', edge_clean_delaunay{t}, ...
+%         'FaceColor','flat', 'FaceVertexCData', colors, 'CDataMapping', 'direct', ...
+%         'FaceAlpha', 1);
+%     hold off
+%     drawnow
+%     filename = ['/Users/kevin/Documents/MATLAB/forSha/media/triangle_areas/T=' num2str(t,'%03i') '.png'];
+%     print(gcf,'-dpng',filename)
 
