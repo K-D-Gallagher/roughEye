@@ -297,19 +297,19 @@ alt_sorted_std_DATA_per_geno = zeros(length(target_genotypes),1);
 
 count = 0;
 
-for j = 1:length(sorted_genotypes)
+for j = 1:length(target_genotypes)
     
     % check if current genotype in 'sorted_genotypes' is part of our list
     % of genotypes to plot
-    [LIA,~] = ismember(sorted_genotypes(j),target_genotypes);
+    [LIA,LOCB] = ismember(target_genotypes(j),sorted_genotypes);
     
     if LIA
         
         count = count + 1;
-        alt_sorted_genotype_labels{count} = sorted_genotype_labels(j); % for plotting
-        alt_sorted_DATA_per_geno(:,count) = sorted_DATA_per_geno(:,j);
-        alt_sorted_ave_DATA_per_geno(count) = sorted_ave_DATA_per_geno(j);
-        alt_sorted_std_DATA_per_geno(count) = sorted_std_DATA_per_geno(j);
+        alt_sorted_genotype_labels{count} = sorted_genotype_labels(LOCB); % for plotting
+        alt_sorted_DATA_per_geno(:,count) = sorted_DATA_per_geno(:,LOCB);
+        alt_sorted_ave_DATA_per_geno(count) = sorted_ave_DATA_per_geno(LOCB);
+        alt_sorted_std_DATA_per_geno(count) = sorted_std_DATA_per_geno(LOCB);
         
     end
     
@@ -327,19 +327,19 @@ alt_std_DATA_per_geno = zeros(length(target_genotypes),1);
 
 count = 0;
 
-for j = 1:length(genotypes)
+for j = 1:length(target_genotypes)
     
     % check if current genotype in 'sorted_genotypes' is part of our list
     % of genotypes to plot
-    [LIA,~] = ismember(genotypes(j),target_genotypes);
+    [LIA,LOCB] = ismember(target_genotypes(j),genotypes);
     
     if LIA
         
         count = count + 1;
-        alt_genotype_labels{count} = genotype_labels(j); % for plotting
-        alt_DATA_per_geno(:,count) = all_DATA_per_geno(:,j);
-        alt_ave_DATA_per_geno(count) = ave_DATA_per_geno(j);
-        alt_std_DATA_per_geno(count) = std_DATA_per_geno(j);
+        alt_genotype_labels{count} = genotype_labels(LOCB); % for plotting
+        alt_DATA_per_geno(:,count) = all_DATA_per_geno(:,LOCB);
+        alt_ave_DATA_per_geno(count) = ave_DATA_per_geno(LOCB);
+        alt_std_DATA_per_geno(count) = std_DATA_per_geno(LOCB);
         
     end
     

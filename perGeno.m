@@ -372,19 +372,19 @@ alt_sorted_std_DATA = zeros(length(target_genotypes),1);
 
 count = 0;
 
-for j = 1:length(sorted_genotypes)
+for j = 1:length(target_genotypes)
     
     % check if current genotype in 'sorted_genotypes' is part of our list
     % of genotypes to plot
-    [LIA,~] = ismember(sorted_genotypes(j),target_genotypes);
+    [LIA,LOCB] = ismember(target_genotypes(j),sorted_genotypes);
     
     if LIA
         
         count = count + 1;
-        alt_sorted_genotype_labels{count} = sorted_genotype_labels(j); % for plotting
-        alt_sorted_DATA_matrix_form(:,count) = sorted_DATA_matrix_form(:,j);
-        alt_sorted_mean_DATA(count) = sorted_mean_DATA(j);
-        alt_sorted_std_DATA(count) = sorted_std_DATA(j);
+        alt_sorted_genotype_labels{count} = sorted_genotype_labels(LOCB); % for plotting
+        alt_sorted_DATA_matrix_form(:,count) = sorted_DATA_matrix_form(:,LOCB);
+        alt_sorted_mean_DATA(count) = sorted_mean_DATA(LOCB);
+        alt_sorted_std_DATA(count) = sorted_std_DATA(LOCB);
         
     end
 end
@@ -401,20 +401,20 @@ alt_std_DATA = zeros(length(target_genotypes),1);
 
 count = 0;
 
-for j = 1:length(genotypes)
+for j = 1:length(target_genotypes)
     
     % check if current genotype in 'sorted_genotypes' is part of our list
     % of genotypes to plot
-    [LIA,~] = ismember(genotypes(j),target_genotypes);
+    [LIA,LOCB] = ismember(target_genotypes(j),genotypes);
     
     if LIA
         
         count = count + 1;
-        alt_genotypes{count} = genotypes(j);
-        alt_genotype_labels{count} = genotype_labels(j); % for plotting
-        alt_DATA_matrix_form(:,count) = DATA_matrix_form(:,j);
-        alt_mean_DATA(count) = mean_DATA(j);
-        alt_std_DATA(count) = std_DATA(j);
+        alt_genotypes{count} = genotypes(LOCB);
+        alt_genotype_labels{count} = genotype_labels(LOCB); % for plotting
+        alt_DATA_matrix_form(:,count) = DATA_matrix_form(:,LOCB);
+        alt_mean_DATA(count) = mean_DATA(LOCB);
+        alt_std_DATA(count) = std_DATA(LOCB);
         
     end
 end

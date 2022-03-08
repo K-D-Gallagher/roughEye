@@ -4,7 +4,7 @@ function [] = ...
     x_axis_text_angle, plot_title, title_size, ...
     x_label, y_label, axes_label_size,...
     save_csv_to_file,y_axis_limit,...
-    measurement_type,distance_cutoff,raw_images)
+    measurement_type,distance_cutoff)
 
 
 %--------------------------------------------------------------------------
@@ -35,14 +35,14 @@ disp("based on genotype. Sample:   ")
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-% apply distance cutoff
+% find ommatidia within distance cutoff
 
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
 % pass to new variable that we will modify based on distance_cutoff
-clean_omma_centroids = {};
+omma_for_analysis = {};
 
 for t = 1:num_meas
     
@@ -62,25 +62,12 @@ for t = 1:num_meas
         if dist < distance_cutoff
             
             omma_count = omma_count + 1;
-            clean_omma_centroids{t}(omma_count) = j;
+            omma_for_analysis{t}(omma_count) = j;
             
         end
         
     end
     
-end
-
-
-for i = 1:num_meas
-    imshow(raw_images(:,:,:,i))
-    hold on
-    for ii = 1:length(clean_omma_centroids{i})
-        plot(clean_omma_centroids{i}(ii,1),clean_omma_centroids{i}(ii,2),...
-            'o','Color','c','MarkerSize',14, ...
-            'LineWidth',3)
-    end
-    hold off
-    pause(0.1)
 end
 
 
@@ -125,8 +112,8 @@ for t = 1:length(clean_omma_centroids)
     % position within 'clean_omma_centroids'
     for j = 1:size(x,1)
         
-        % make sure its not a boundary point
-        if not(ismember(j,boundary_cent{t}))
+        % make sure its not a boundary point and within distance cutoff
+        if not(ismember(j,boundary_cent{t})) && ismember(j,omma_for_analysis{t})
             
             %--------------------------------------------------------------
             %--------------------------------------------------------------
@@ -385,11 +372,11 @@ alt_sorted_std_DATA = zeros(length(target_genotypes),1);
 
 count = 0;
 
-for j = 1:length(sorted_genotypes)
+for j = 1:length(target_genotypes)
     
     % check if current genotype in 'sorted_genotypes' is part of our list
     % of genotypes to plot
-    [LIA,~] = ismember(sorted_genotypes(j),target_genotypes);
+    [LIA,LOCB] = ismember(target_genotypes(j),sorted_genotypes);
     
     if LIA
         

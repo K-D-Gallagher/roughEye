@@ -382,10 +382,11 @@ COVheatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
 % aggregate COV measurements of ommatidia from multiple images according to
 % their genotype
 
-%-------------------------
-% WHICH GENOTYPES TO PLOT?
-%-------------------------
-target_genotypes = genotype_code;
+%--------------------------------------------------------------------------
+% Which genotypes to plot and the order in which we want to plot them:
+%--------------------------------------------------------------------------
+target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
+target_genotypes = ["q14" "q13" "q12" "q11" "q9" "q5"];
 
 %--------------------------------------------------------------------------
 % PLOT OPTIONS
@@ -442,7 +443,8 @@ perGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors, ...
 %-------------------------
 % WHICH GENOTYPES TO PLOT?
 %-------------------------
-target_genotypes = genotype_code;
+target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
+target_genotypes = ["q14" "q13" "q12" "q11" "q9" "q5"];
 
 %--------------------------------------------------------------------------
 % PLOT OPTIONS
