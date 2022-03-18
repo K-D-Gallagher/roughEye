@@ -351,6 +351,8 @@ visualizeOmmaNeighbors(raw_images,clean_omma_centroids,...
 save_individual_images = true;
 save_movies = true;
 
+distance_cutoff = 200;
+
 %-----------------------------------------------------------
 % NOTE: choose only one (one must True and one must be false)
 % this specifies whether to scale the COV colormap according
@@ -361,9 +363,39 @@ use_global_scaling = false;
 %-----------------------------------------------------------
 
 COVheatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
-    raw_images,save_individual_images,save_movies, use_local_scaling, use_global_scaling)
+    raw_images,save_individual_images,save_movies, use_local_scaling, use_global_scaling,...
+    distance_cutoff)
 
 
+%%
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%
+%
+% Max-min heatmap
+%
+%
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+save_individual_images = true;
+save_movies = true;
+
+distance_cutoff = 200;
+
+%-----------------------------------------------------------
+% NOTE: choose only one (one must True and one must be false)
+% this specifies whether to scale the COV colormap according
+% to the current image or according to all images
+
+use_local_scaling = true;
+use_global_scaling = false;
+%-----------------------------------------------------------
+
+MaxMinHeatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
+    raw_images,save_individual_images,save_movies, use_local_scaling, use_global_scaling,...
+    distance_cutoff)
     
 %%
 
@@ -517,22 +549,28 @@ plot_style = "violin plot";                % alt options: "mean & std", "box plo
 ascending_mean = true;              % do you want to sort genotypes by ascending mean?
 median_normalized = true;           % do you want to normalized the distributions based on the median?
 genotype_labels = genotype_code;    % x-axis genotype labels - do you want to use the short hand code or full genotype?
-x_axis_text_angle = 0;              % choose angle of x-axis text (rotate so they don't overlap)
+
 plot_title = "Inter-R8-distances";
 title_size = 20;
 x_label = "Genotypes";
+x_axis_text_angle = 0;              % choose angle of x-axis text (rotate so they don't overlap)
 y_label = "Inter-R8-distances (microns)";
 axes_label_size = 16;
+
 x_axis_lim = [-30 30];
 y_axis_limit = [-10 10];
+
 conversion_factor = 0.454;      % pixels to um
 save_csv_to_file = true;       % would you like to save a cvs document to file?
+
+distance_cutoff = 200;
 
 interR8distancePerGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
     target_genotypes,plot_style,ascending_mean,median_normalized,genotype_labels,...
     x_axis_text_angle, plot_title, title_size, ...
     x_label, y_label, axes_label_size, x_axis_lim,...
-    conversion_factor,save_csv_to_file,y_axis_limit)
+    conversion_factor,save_csv_to_file,y_axis_limit,...
+    distance_cutoff)
 
 
 %%

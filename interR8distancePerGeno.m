@@ -3,7 +3,8 @@ function [] = ...
     target_genotypes,plot_style,ascending_mean,median_normalized,genotype_labels,...
     x_axis_text_angle, plot_title, title_size, ...
     x_label, y_label, axes_label_size, x_axis_lim,...
-    conversion_factor,save_csv_to_file,y_axis_limit)
+    conversion_factor,save_csv_to_file,y_axis_limit,...
+    distance_cutoff)
 
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
@@ -33,6 +34,45 @@ num_meas = length(clean_omma_centroids);
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
+% find ommatidia within distance cutoff
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+% pass to new variable that we will modify based on distance_cutoff
+omma_for_analysis = {};
+
+for t = 1:num_meas
+    
+    omma_count = 0;
+    
+    % find the center of mass for the segmented ommatidia of the current
+    % image
+    center_x = sum(clean_omma_centroids{t}(:,1))/length(clean_omma_centroids{t}(:,1));
+    center_y = sum(clean_omma_centroids{t}(:,2))/length(clean_omma_centroids{t}(:,2));
+    
+    for j = 1:length(clean_omma_centroids{t})
+        
+        term1 = (clean_omma_centroids{t}(j,1) - center_x)^2;
+        term2 = (clean_omma_centroids{t}(j,2) - center_y)^2;
+        dist = sqrt(term1 + term2);
+        
+        if dist < distance_cutoff
+            
+            omma_count = omma_count + 1;
+            omma_for_analysis{t}(omma_count) = j;
+            
+        end
+        
+    end
+    
+end
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
 % measure inter-R8-distances for each individual image
 
 %--------------------------------------------------------------------------
@@ -50,7 +90,7 @@ for t = 1:length(clean_omma_centroids)
     % display counter
     if t > 1
         for j=0:log10(t-1)
-          fprintf('\b'); % delete previous counter display
+            fprintf('\b'); % delete previous counter display
         end
         fprintf('%d',t)
     end
@@ -71,54 +111,49 @@ for t = 1:length(clean_omma_centroids)
     % position within 'clean_omma_centroids'
     for j = 1:size(x,1)
         
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %
-        %
-        % variance in distance
-        %
-        %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        temp_distances = zeros(length(delaunay_neighbors{t}{j}),1);
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % loop through current neighbors, calculate distance between
-        % center point and each neighbor, and collect these
-        % measurements in a list
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        for jj = 1:length(delaunay_neighbors{t}{j})
+        % check if this ommatidia is within our search range or not
+        if ismember(j,omma_for_analysis{t})
             
-            % store centroid components for current center position and
-            % current neighbor
-            curr_x = x(j);
-            curr_y = y(j);
-            neigh_x = x(delaunay_neighbors{t}{j}(jj));
-            neigh_y = y(delaunay_neighbors{t}{j}(jj));
+            temp_distances = zeros(length(delaunay_neighbors{t}{j}),1);
             
-            % check to see if either combination of centroid pairs is
-            % currently stored in 'unique_links'
-            [LIA, ~] = ismember([curr_x curr_y neigh_x neigh_y], unique_links, 'rows');
-            [LIA2,~] = ismember([neigh_x neigh_y curr_x curr_y], unique_links, 'rows');
-            
-            % if neither centroid pair is stored in 'unique_links', then we
-            % can record the distance between these two points
-            if not(LIA) && not(LIA2)
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % loop through current neighbors, calculate distance between
+            % center point and each neighbor, and collect these
+            % measurements in a list
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            for jj = 1:length(delaunay_neighbors{t}{j})
                 
-                % record current centroid-pair in 'unique_links'
-                link_count = link_count + 1;
-                unique_links(link_count,:) = [curr_x curr_y neigh_x neigh_y];
+                % store centroid components for current center position and
+                % current neighbor
+                curr_x = x(j);
+                curr_y = y(j);
+                neigh_x = x(delaunay_neighbors{t}{j}(jj));
+                neigh_y = y(delaunay_neighbors{t}{j}(jj));
                 
-                % euclidean distance b/w two points
-                temp_D = sqrt( ((neigh_x - curr_x)^2) + ((neigh_y - curr_y)^2) );
+                % check to see if either combination of centroid pairs is
+                % currently stored in 'unique_links'
+                [LIA, ~] = ismember([curr_x curr_y neigh_x neigh_y], unique_links, 'rows');
+                [LIA2,~] = ismember([neigh_x neigh_y curr_x curr_y], unique_links, 'rows');
                 
-                % convert to microns
-                temp_D = conversion_factor * temp_D;
-                
-                % store in list of distances for current center point
-                dist_count = dist_count + 1;
-                curr_distances(dist_count) = temp_D;
+                % if neither centroid pair is stored in 'unique_links', then we
+                % can record the distance between these two points
+                if not(LIA) && not(LIA2)
+                    
+                    % record current centroid-pair in 'unique_links'
+                    link_count = link_count + 1;
+                    unique_links(link_count,:) = [curr_x curr_y neigh_x neigh_y];
+                    
+                    % euclidean distance b/w two points
+                    temp_D = sqrt( ((neigh_x - curr_x)^2) + ((neigh_y - curr_y)^2) );
+                    
+                    % convert to microns
+                    temp_D = conversion_factor * temp_D;
+                    
+                    % store in list of distances for current center point
+                    dist_count = dist_count + 1;
+                    curr_distances(dist_count) = temp_D;
+                    
+                end
                 
             end
             

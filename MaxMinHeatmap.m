@@ -1,5 +1,5 @@
 
-function COVheatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
+function MaxMinHeatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
     raw_images,save_individual_images,save_movies, use_local_scaling,use_global_scaling,...
     distance_cutoff)
 
@@ -151,6 +151,41 @@ for t = 1:length(clean_omma_centroids)
     x = clean_omma_centroids{t}(:,1);
     y = clean_omma_centroids{t}(:,2);
     
+    %----------------------------------------------------------------------
+    % find average inter-ommatidial distance
+    %----------------------------------------------------------------------
+    all_distances = [];
+    dist_count = 0;
+    for j = 1:size(x,1)
+        
+        % make sure its not a boundary point and within distance cutoff
+        if not(ismember(j,boundary_cent{t})) && ismember(j,omma_for_analysis{t})
+            
+            for jj = 1:length(delaunay_neighbors{t}{j})
+                
+                % store centroid components for current center position and
+                % current neighbor
+                curr_x = x(j);
+                curr_y = y(j);
+                neigh_x = x(delaunay_neighbors{t}{j}(jj));
+                neigh_y = y(delaunay_neighbors{t}{j}(jj));
+                
+                % euclidean distance b/w two points
+                temp_D = sqrt( ((neigh_x - curr_x)^2) + ((neigh_y - curr_y)^2) );
+                
+                dist_count = dist_count + 1;
+                all_distances(dist_count) = temp_D;
+            end
+        end
+    end
+    
+    % take mean distance
+    mean_distance = mean(all_distances);
+    
+    %----------------------------------------------------------------------
+    % apply metric for measuring disorder
+    %----------------------------------------------------------------------
+    
     % initialize list for storing COV for omma in current eye
     temp_dist_COV = nan(length(x),1);
     
@@ -200,7 +235,8 @@ for t = 1:length(clean_omma_centroids)
             %--------------------------------------------
             
             % calculate variance
-            temp_dist_COV(j) = std(temp_distances) / mean(temp_distances);
+            temp_dist_COV(j) = (max(temp_distances) - min(temp_distances))...
+                / mean_distance;
             
             
         end
