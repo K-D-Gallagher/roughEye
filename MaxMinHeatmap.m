@@ -10,7 +10,7 @@ function MaxMinHeatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neigh
 close all
 % make folder
 base_path = expInfo.filepath_output;
-masterpath_out = strcat(base_path,'/COV_heatmap/');
+masterpath_out = strcat(base_path,'/MaxMin_heatmap/');
 [ status, msg ] = mkdir(masterpath_out);
 if status == 0
     msg

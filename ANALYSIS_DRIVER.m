@@ -422,7 +422,7 @@ MaxMinHeatmap(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
 % Which genotypes to plot and the order in which we want to plot them:
 %--------------------------------------------------------------------------
 target_genotypes = ["q5" "q9" "q11" "q12" "q13" "q14"];
-target_genotypes = ["q14" "q13" "q12" "q11" "q9" "q5"];
+% target_genotypes = ["q14" "q13" "q12" "q11" "q9" "q5"];
 
 %--------------------------------------------------------------------------
 % PLOT OPTIONS
@@ -442,7 +442,7 @@ y_label = "Min/max inter-R8-distance";
 title_size = 20;
 axes_label_size = 16;
 x_axis_text_angle = 0;         % choose angle of x-axis text (rotate so they don't overlap)
-y_axis_limit = [0 1];
+y_axis_limit = [0 3];
 
 distance_cutoff = 200;       % threshold, in pixels, within which we'll include ommatidia for measurement
 measurement_type = 'max_min';     % OPTIONS: COV, max_min
@@ -552,7 +552,7 @@ genotype_labels = genotype_code;    % x-axis genotype labels - do you want to us
 
 plot_title = "Inter-R8-distances";
 title_size = 20;
-x_label = "Genotypes";
+x_label = "Genotypes"; 
 x_axis_text_angle = 0;              % choose angle of x-axis text (rotate so they don't overlap)
 y_label = "Inter-R8-distances (microns)";
 axes_label_size = 16;
@@ -573,24 +573,6 @@ interR8distancePerGeno(expInfo,genotype_code,clean_omma_centroids,delaunay_neigh
     distance_cutoff)
 
 
-%%
-
-%--------------------------------------------------------------------------
-%--------------------------------------------------------------------------
-%
-%
-% use U-Mann-Whitley test to compare COV
-%
-%
-%--------------------------------------------------------------------------
-%--------------------------------------------------------------------------
-
-target_genotypes = ["q5" "q11"];
-
-MannWhitney_COV(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
-    target_genotypes)
-
-
 
 %%
 
@@ -598,34 +580,20 @@ MannWhitney_COV(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,..
 %--------------------------------------------------------------------------
 %
 %
-% use U-Mann-Whitley test to compare inter-R8-distances
+% use U-Mann-Whitley test
 %
 %
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 
-target_genotypes = ["q9" "q11"];
+genotype_labels = genotype_code;    % x-axis genotype labels - do you want to use the short hand code or full genotype?
+distance_cutoff = 200;       % threshold, in pixels, within which we'll include ommatidia for measurement
+measurement_type = 'max_min';     % OPTIONS: COV, max_min
 
-MannWhitney_interR8(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
-    target_genotypes)
+target_genotypes = ["q13" "q14"];
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+MannWhitney_test(expInfo,genotype_code,clean_omma_centroids,delaunay_neighbors,...
+    target_genotypes, distance_cutoff, measurement_type, genotype_labels)
 
 
 %%
